@@ -1,0 +1,140 @@
+% =============================================================================
+% Master's Thesis -- Nova SBE -- Business Analytics
+% Cold-Start Preference Alignment of LLMs: a Comparative Study
+% =============================================================================
+%
+% Build:
+%   latexmk -pdf main.tex          (recommended)
+%   or:  pdflatex main && biber main && pdflatex main && pdflatex main
+%
+% Structure:
+%   - main.tex            : preamble, doc structure (this file)
+%   - sections/*.tex      : one file per section, \input-ed below
+%   - references.bib      : BibLaTeX database
+%   - figures/            : drop PDF/PNG figures here
+%
+% Page budget (target 25 pp body, Nova SBE solo-DR):
+%   1 Introduction              ~2.5
+%   2 Background                ~3.0
+%   3 Methodology               ~4.0
+%   4 Experimental Design       ~2.0
+%   5 Results                   ~4.0
+%   6 Business Analysis         ~4.5
+%   7 Limitations & Future Work ~1.5
+%   8 Conclusion                ~1.0
+%   ---------------------------------
+%   Total                       ~22.5  (≈2.5 pp headroom for figures)
+% =============================================================================
+
+\documentclass[12pt,a4paper]{article}
+
+% ------ Encoding / fonts ----------------------------------------------------
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage[english]{babel}
+
+% ------ Page layout ---------------------------------------------------------
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+\usepackage{parskip}      % space between paragraphs, no indent
+
+% ------ Math & symbols ------------------------------------------------------
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{siunitx}
+\sisetup{detect-all,group-separator={,},group-minimum-digits=4}
+
+% ------ Graphics, tables, floats --------------------------------------------
+\usepackage{graphicx}
+\graphicspath{{figures/}}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage{caption}
+\captionsetup{font=small,labelfont=bf}
+\usepackage{float}
+
+% ------ Code / pseudocode ---------------------------------------------------
+\usepackage{listings}
+\lstset{
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  frame=single,
+  showstringspaces=false,
+}
+
+% ------ Bibliography (BibLaTeX + biber, APA-ish) ----------------------------
+\usepackage{csquotes}
+\usepackage[
+  backend=biber,
+  style=authoryear,
+  natbib=true,
+  maxcitenames=2,
+  maxbibnames=99,
+  uniquelist=false,
+]{biblatex}
+\addbibresource{references.bib}
+
+% ------ Cross-references (load hyperref LAST, cleveref AFTER) ---------------
+\usepackage[hidelinks]{hyperref}
+\usepackage[noabbrev,capitalize]{cleveref}
+
+% ------ Convenience macros --------------------------------------------------
+\usepackage{xcolor}
+\long\def\todo#1{{\color{red}\bfseries [TODO: #1]}}
+
+% =============================================================================
+\begin{document}
+
+% ------ Cover page (Nova SBE template -- replace this block with the official
+%        cover page from the WP SharePoint before submission) -----------------
+\begin{titlepage}
+  \centering
+  \vspace*{2cm}
+  {\Large\bfseries Nova School of Business and Economics\par}
+  \vspace{0.5cm}
+  {\large Master's in Business Analytics\par}
+  \vfill
+  {\Huge\bfseries Taste: Cold Start Preference Optimisation for Personalised Large Language Models\par}
+  \vspace{0.8cm}
+  {\Large A Comparative Study of DPO, IPO, SimPO, and KTO\\with Business Implications\par}
+  \vfill
+  {\large \textit{Author Name}\par}
+  {\normalsize Student ID: \texttt{XXXXX}\par}
+  \vspace{0.4cm}
+  {\large Advisor: \textit{Advisor Name}\par}
+  \vfill
+  {\large \today\par}
+\end{titlepage}
+
+% ------ Abstract ------------------------------------------------------------
+\input{sections/00_abstract}
+
+% ------ Front matter --------------------------------------------------------
+\tableofcontents
+\listoffigures
+\listoftables
+\clearpage
+
+% ------ Body ----------------------------------------------------------------
+\input{sections/01_introduction}
+\input{sections/02_background}
+\input{sections/03_methodology}
+\input{sections/04_experimental_design}
+\input{sections/05_results}
+\input{sections/06_business_analysis}
+\input{sections/07_limitations}
+\input{sections/08_conclusion}
+
+% ------ References ----------------------------------------------------------
+\clearpage
+\printbibliography[heading=bibintoc,title={References}]
+
+% ------ Appendices ----------------------------------------------------------
+\clearpage
+\appendix
+\input{sections/09_ai_disclosure}
+
+\end{document}

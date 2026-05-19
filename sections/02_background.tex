@@ -1,0 +1,96 @@
+% =============================================================================
+% 2. Background -- target ~3 pp
+% Four moves:
+%   2.1 LLMs and recommender systems       -- classical recsys (brief), LLM recsys
+%   2.2 Preference Optimization            -- DPO, IPO, SimPO, KTO with equations
+%   2.3 In-Context Learning                -- ICL fundamentals, chat vs flat
+%   2.4 What others have done so far       -- related work + the gap this fills
+% =============================================================================
+
+\section{Background}
+\label{sec:bg}
+
+\subsection{LLMs and Recommender Systems}
+\label{sec:bg:llmrec}
+
+Trying to guess what people like based on their previous preferences is not a new thing, Recomender systems are actually one of the most researched and studied areas in computing, having created some of the most influential and widely used algoritms today, that power marketplaces such has amazon, alybaba ...
+
+The creation of LLMs has shinned a brand new light of what we are able to achieve in this area, because these models have a pretty wide knowledge of the world they are to create connections between items that would be impossible to discover in traditional systems that most times only used data from similar users or a very limited set of characteristics from the product. Furthermore, these systems have already been pre-trained so we can create these connections from very few previous user preferences. 
+
+Event tough the problem is the same require a completely different approach, recomender systems mainly harnessed knowledge from other users and aplied them to a particular user, with LLMs is more about stering the LLMs vast knowledge based on the prior prefereces from the users, this can be done using 2 different methods Direct preference optimization (DPO) and In context Learning (ICL).
+
+\subsection{Direct Preference Optimization}
+
+Direct preference optimization is a family of methods that all share the same basic move: given a pair of outputs where we know which one the user preferred, push the model to make the preferred one more likely and the rejected one less likely. The interesting differences sit in two design choices --- how exactly you measure ``more likely'', and what you anchor the model to so it doesn't drift off and forget everything it picked up during pre-training. We compare four members of this family in this thesis: DPO, IPO, SimPO, and KTO. Three of them keep a frozen copy of the original model (the reference $\pi_{\text{ref}}$) and steer the trainable model (the policy $\pi_\theta$) relative to it; one of them drops the reference entirely.
+
+\paragraph{DPO -- Direct Preference Optimization.} The Bradley-Terry-grounded baseline. For a preference pair $(x, y_w, y_l)$ with $y_w$ preferred to $y_l$:
+\begin{equation}
+\mathcal{L}_{\text{DPO}} = -\log \sigma\!\left(\beta\Big[\big(\log \pi_\theta(y_w \mid x) - \log \pi_{\text{ref}}(y_w \mid x)\big) - \big(\log \pi_\theta(y_l \mid x) - \log \pi_{\text{ref}}(y_l \mid x)\big)\Big]\right).
+\end{equation}
+The intuition is straightforward: tilt the policy toward $y_w$ relative to its prior probability, and away from $y_l$ relative to its prior probability. The reference model acts as a leash --- the policy is free to move, but only so far from where it started~\citep{rafailov2023dpo}.
+
+\paragraph{IPO -- Identity Preference Optimization.} Replaces the log-sigmoid loss with a squared loss that has a natural target margin of $1/(2\beta)$, designed to reduce overfitting under noisy preferences~\citep{azar2024ipo}:
+\begin{equation}
+\mathcal{L}_{\text{IPO}} = \left(h_\theta(x, y_w, y_l) - \tfrac{1}{2\beta}\right)^2, \quad h_\theta = \big(\log \pi_\theta - \log \pi_{\text{ref}}\big)\Big|_{y_w} - \big(\log \pi_\theta - \log \pi_{\text{ref}}\big)\Big|_{y_l}.
+\end{equation}
+The motivation is that DPO can be too aggressive: if a preference label is wrong or noisy, the log-sigmoid keeps pushing the gap wider forever, while the squared loss has a target margin it actually wants to hit and then stops. In the cold-start regime, where every label carries a lot of weight, this matters.
+
+\paragraph{SimPO -- Simple Preference Optimization.} Reference-free; a length-normalised log-probability gap with a fixed margin $\gamma$~\citep{meng2024simpo}:
+\begin{equation}
+\mathcal{L}_{\text{SimPO}} = -\log \sigma\!\left(\tfrac{\beta}{|y_w|}\log \pi_\theta(y_w \mid x) - \tfrac{\beta}{|y_l|}\log \pi_\theta(y_l \mid x) - \gamma\right).
+\end{equation}
+SimPO throws out the reference model entirely, which roughly halves the memory and compute needed to train. It also normalises by sequence length, which matters because longer responses naturally accumulate lower log-probabilities and would otherwise dominate the gradient just because they are longer.
+
+\paragraph{KTO -- Kahneman-Tversky Optimization.} Operates on unpaired thumbs-up / thumbs-down signals; inspired by prospect theory's asymmetric treatment of gains and losses~\citep{ethayarajh2024kto}. Per-example reward $r_\theta(x, y) = \log \pi_\theta(y \mid x) - \log \pi_{\text{ref}}(y \mid x)$; loss alternates by label:
+\begin{equation}
+\mathcal{L}_{\text{KTO}} =
+\begin{cases}
+-\log \sigma\!\big(\beta(r_\theta - z_0)\big) & \text{if } y \text{ desirable},\\
+-\log \sigma\!\big(\beta(z_0 - r_\theta)\big) & \text{if } y \text{ undesirable},
+\end{cases}
+\end{equation}
+where $z_0$ is a batch-level reference baseline. The big departure here is that KTO doesn't need preference pairs at all --- a single ``I liked this'' or ``I didn't'' is enough --- which makes it the closest match to the kind of feedback most products actually collect from users in the wild.
+
+Why these four? Together they span the design space that matters for cold-start personalisation. DPO is the de facto baseline that every newer method positions itself against. IPO changes the shape of the loss to be more robust to noisy or scarce data, which is exactly our setting. SimPO drops the reference, asking whether that regularisation is still worth its cost when there is very little training data to drift on. KTO drops the pairing requirement, asking whether cheaper unpaired feedback is good enough --- which matters in practice because asking a user for a thumbs-up is much less friction than asking them to compare two items. The empirical question for this thesis is which of these trade-offs actually pays off when we only have a handful of preferences per user.
+
+
+\subsection{In-Context Learning}
+
+In-context learning (ICL) conditions an LLM on a small set of demonstration examples placed directly in the prompt, without any gradient update. This capability emerged largely as a byproduct of scale: smaller models can't really do it, but once models cross a certain size threshold they start picking up patterns from a few examples in the prompt and applying them to a new query~\citep{brown2020gpt3}. We usually distinguish three settings here: zero-shot, where the model is given only a task description; few-shot, where it is given a handful of input-output examples; and instruction-tuned, where the model has been further trained to follow natural-language instructions and so behaves more reliably under both~\citep{dong2024iclsurvey}. For our purposes, ICL is attractive precisely because it sidesteps training altogether --- the user's preferences simply become more text in the prompt --- which makes it the natural no-training baseline against the four preference-optimisation losses.
+
+We use two variants in this thesis. \texttt{icl\_chat} inserts the training pairs as prior user/assistant turns in Llama-3-Instruct's chat template, so the model sees the user's preferences as if they were earlier turns of an ongoing conversation. This leverages the model's RLHF conditioning on multi-turn dialogue and is the natural production setting for any instruction-tuned model. \texttt{icl\_flat} concatenates the same training pairs as plain text before the evaluation prompt, with no chat-template structure. This is a format-ablation control: if \texttt{icl\_chat} is strictly better than \texttt{icl\_flat}, that's evidence the chat template is doing real work and not just changing surface formatting.
+
+ICL is often dismissed as a baseline because it doesn't ``learn'' in the gradient sense. But that framing inverts the empirical question for our setting. When training data is plentiful, of course gradient updates win. When training data is scarce, though, the question is exactly the opposite: is \emph{not} learning sometimes the better strategy? That is what this thesis sets out to answer.
+
+\subsection{What Others Have Done So Far}
+\label{sec:bg:related}
+
+\todo{Related work, organised into three threads. Cite a few representative
+papers per thread; don't try to be exhaustive.
+
+\textbf{(1) LLM-based recommendation.} Survey of recent work treating LLMs
+as recommender backbones, prompt-only and fine-tuned. Highlight what's
+been measured (top-$k$ accuracy, click prediction, conversational
+metrics) and what hasn't -- specifically, head-to-head comparisons of
+modern preference-optimisation losses for the per-user case in the
+cold-start regime. \todo{cite: P5, TALLRec, LlamaRec, GPT4Rec, RecLLM.}
+
+\textbf{(2) Comparative studies of preference-optimisation methods.}
+DPO has been compared with IPO and SimPO in general alignment settings
+(general instruction-following, helpfulness, safety) -- usually on
+relatively large datasets. Cold-start, per-user, very-small-$n$
+comparisons are rare. \todo{cite: any direct DPO-vs-IPO-vs-SimPO papers
+that exist; flag that KTO comparisons are even thinner.}
+
+\textbf{(3) PEFT and adapters for personalisation.} LoRA and related
+adapters have been used for per-user personalisation in NLP, speech, and
+recommendation. \todo{cite: LoRA original, AdapterHub, recent per-user
+PEFT papers.} The novelty of this thesis is not the adapter mechanism --
+it's the loss-function comparison \emph{at the cold-start data scale}.
+
+\textbf{The gap this thesis fills.} The natural reading of the literature
+is that any of DPO/IPO/SimPO/KTO will outperform prompting given enough
+preference data. The cold-start question -- whether they outperform at
+the data scales a real onboarding flow can plausibly collect -- has not,
+to the author's knowledge, been answered head-to-head. That is the gap
+this thesis addresses.}

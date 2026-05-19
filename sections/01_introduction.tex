@@ -1,0 +1,51 @@
+% =============================================================================
+% 1. Introduction -- target ~2.5 pp
+% Four moves:
+%   1.1 Why is this important              -- the stakes (personalisation, cold-start)
+%   1.2 How this fits in the LLM landscape -- market context, commoditisation
+%   1.3 Research questions and contribution
+%   1.4 How we approached the issue        -- brief method preview + roadmap
+% =============================================================================
+ 
+\section{Introduction}
+\label{sec:intro}
+ 
+\subsection{Why This Matters}
+\label{sec:intro:why}
+
+Up to now, the way we interact with technology has mostly been constrained by the technology itself: first we had command-line terminals, then graphical user interfaces, and now we are entering a new phase where our interactions with machines are beginning to resemble our interactions with other humans. At the core of this transformation are LLMs pre-trained in enormous datasets and remarkably good at mimicking human communication using mathematics and vast computational power. However, the priorities of the old Internet remain largely unchanged: recommender systems are still central, focused on answering the question "How can we give the user what they like?”. Most companies do not train their own models because that is prohibitively expensive, but they still need to adjust them to their client needs. In the race to differentiate through personalization, they must achieve this alignment in a quick and cost conscious manner.
+
+\todo {add that most models will be personlaized}
+ 
+
+
+ 
+\subsection{Where This Sits in the Current LLM Landscape}
+\label{sec:intro:landscape}
+
+As I said in the last section, LLMs take a great amount of effort to develop from scratch. There are a select few that are at the forefront of what's possible with LLMs, namely OpenAI (ChatGPT), Anthropic (Claude), and Google (Gemini). These models have become the gold standard but also really similar in performance [TODO: cite LMSYS Arena], making the users' choices mainly based on price, availability, and integrations. Companies are shifting their attention to how the LLMs fit that user in specific through personalization methods.
+
+These personalization methods have had some major advancements in the last few years. The first big advancement was in what's called alignment methods: a set of adjustments that are run on top of the base LLM using some user preference data to better align the base model with what users like. Initially this was done with RLHF (Christiano et al., 2017; Ouyang et al., 2022), a multi-stage pipeline that collects human comparisons between model outputs, trains a separate reward model to predict which output a human would prefer, and then uses reinforcement learning (PPO) to push the LLM to score higher on that reward model. Then there was a migration to direct preference optimization, DPO (Xiao et al.), which drops the separate reward model and learns directly from preference pairs, making it much cheaper and faster to run while still achieving similar results. Furthermore, the tools available to make these adjustments to the models have also had some major improvements, namely LoRA [TODO: cite Hu et al. 2021], which freezes the base model and trains only a small set of low-rank matrices on top, shrinking the trainable parameters by orders of magnitude. This means a per-user adapter is just a few megabytes, so storing and swapping one per user becomes practical.
+
+The other way we personalize LLMs is using a much simpler but still very effective method called ICL (Brown et al., 2020). Instead of updating any weights, you just place a few example interactions directly in the prompt and let the model condition on them at inference time. This is essentially the mechanism behind features like ChatGPT memory and Claude Projects — the user's preferences, prior context, or project information are fed back into the prompt so the model behaves as if it knows them, without any actual training.
+
+There has been a clear distinction so far on how these methods have been used: DPO has mainly been treated as a tone and general-alignment tool [TODO: cite UltraFeedback, HH-RLHF], while ICL has been the go-to for user-level preferences and instruction examples. Some recent work has started to bridge this split: FSPO (Singh et al.) explores few-shot preference optimization for personalization, and P-RLHF (Li et al.) studies personalized human feedback directly. But none of them runs a head-to-head comparison of the modern preference losses (DPO, IPO, SimPO, KTO) against ICL in the single-user cold-start regime. That is the gap this thesis fills.
+
+
+
+\subsection{Research Questions and Contribution}
+\label{sec:intro:rq}
+
+\begin{quote}
+\itshape
+ In the cold-start regime, we only have a limited number of explicit preferences, how does the choice of preference-alignment approach affect an LLM's ability to predict that user's preferences on held-out items?
+\end{quote}
+ 
+Our aim is to clearly identify what is the best alignment method in identifying user taste in a cold start environment, be it in terms of performance, simplicity and cost. 
+ 
+\subsection{Approach}
+\label{sec:intro:approach}
+
+
+Our approach is to focus solely on a recommender-style benchmark where the different methods (DPO, IPO, SimPO, KTO, and two in-context learning variants) are given a number of user preferences (which movies or books each user liked) and asked to pick some more. This way we can compare all the methods consistently, focusing on the actual taste of each user. We work with two famous datasets, GoodReads and Netflix, that are widely used in this type of comparison and contain information indicating users' taste. For each user we either fine-tune a personal LoRA adapter on top of Llama-3-8B-Instruct (for DPO, IPO, SimPO, and KTO) or paste the preferences straight into the prompt (for ICL), sweeping the training size from 3 to 100 preference pairs so we can see how sample-efficient each method is. We run every configuration on 22 users per dataset across multiple random seeds and also introduce prompt ablations, so the differences we see between methods reflect the methods themselves and not just a lucky prompt or a lucky initialization.
+ 

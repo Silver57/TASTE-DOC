@@ -1,0 +1,66 @@
+% ============================================================
+% Section 3 — Methodology
+% Cold-Start Preference Learning master's thesis
+% Fluid prose, no em/en dashes used as sentence breaks.
+% Update \ref{} keys to match your local label scheme.
+% ============================================================
+
+\section{Methodology}
+\label{sec:methodology}
+
+This section describes the methodology used to run the experiments. We will look over on all the components from the datasets used to the fine-tuning parameters used in the training. Even tough the focus of the Thesis is the business case i find it important to clearly the structural decisions that lead me to my findings. 
+
+\subsection{Datasets and Item Filtering}
+\label{sec:data}
+
+To reliably benchmark user preferences we chose to work with datasets that that only contain data solely based on user preferences such has books and movies and are items that are easily identifiable by their name, so it would make sense to run in cold start environment were the model would have to have some prior knowledge of what we were talking about. For the datasets we went with 2 widely used benchmarks for recommender systems. The first is the Netflix Prize dataset, which contains over one hundred million ratings of roughly seventeen thousand films collected from around four hundred and eighty thousand viewers. The second is the GoodReads-10k dataset, which contains roughly six million ratings of ten thousand books from fifty-three thousand readers. Bought datasets use a similar rating format that is important to be able to keep the data handling and subsequent test homogeneous. 
+
+First we filter the datasets to only show items that are not to obscure so it is more likely the base model has encountered them during pre-training, twenty thousand reviews for Netflix and two thousand reviews for GoodReads. Then we split the users reviews into two categories, liked items that have either five our four stars and disliked items that have one or two stars, 3 stars rating are considered has ambiguous. (Have a better look into the user filtering and removal logic)
+
+
+\subsection{Preference Pair Generation}
+\label{sec:pair-gen}
+
+Because we are working with DPO models the data must be formated in a preference-pair structure, so one item that is liked and another that is disliked. For every user we run an randomized algorithm that picks one item from each pool until we have reached the desired number of pairs  one hundred and fifty pairs (or two hundred and forty in the extended sweep used for the larger training sizes). Each pair is given a stable identifier so that the same underlying preference can be scored under
+DPO, IPO, SimPO, KTO and the two in-context learning variants without any change in the eval set.
+
+The DPO file stores each pair as a single row containing the prompt, a chosen completion (the string \texttt{"Approved: \{liked\}, Denied: \{disliked\}"}) and a rejected completion (the swap of the two), which is the input format expected by paired-preference losses. The KTO file stores each pair as two rows, one carrying the chosen completion with a positive label and one carrying the rejected completion with a negative label, which is the input format expected by KTO's per-example loss. Sharing the same prompt and the same two completion strings between the two files means that DPO, IPO, SimPO, KTO and ICL are all scored on the same underlying preference content.
+
+\subsection{Prompt Templates}
+\label{sec:prompts}
+
+We used three prompt templates to make sure the prompting structure did not have any effect on the final results. The first, which we refer to as \textit{simple}, asks the question directly: \texttt{"Which book does the reader prefer: \{title\_a\} or \{title\_b\}?"}. The second, which we refer to as \textit{detailed}, uses a similar structure but prefixes the candidates with \texttt{"Book A:"} and \texttt{"Book B:"} labels and ending with the colon-terminated cue \texttt{"The reader prefers:"}. The third, which we refer to as \textit{system}, frames the model as a recommendation assistant (\texttt{"You are a book recommendation assistant. A reader is choosing between \{title\_a\} and \{title\_b\}. Which do they prefer?"}). The Netflix variants of the three templates are direct rewordings, with \textit{book} replaced by \textit{movie} and \textit{reader} replaced by \textit{viewer} or \textit{client}. 
+
+The choice of three templates rather than a larger grid is intentional. The goal here is not a prompt-engineering study but a robustness check: if the cross-method ranking we report in Section~\ref{sec:method-ranking} holds for the bare question, for a structured restatement of it and for an assistant-style framing, then the ranking is unlikely to be an artifact of any one of the three. (Make it less AI)
+
+\subsection{Per-User LoRA Adapters}
+\label{sec:lora}
+
+For the four trained methods (DPO, IPO, SimPO and KTO) we use a technique called Low-Rank Adaptation, or LoRA, on top of a frozen Llama-3-8B-Instruct. The idea is straightforward. Llama-3 has roughly eight billion parameters, and retraining all of them for every user would be both unaffordable and wasteful, since most of what the model already knows about books, films and language does not need to change. Instead, we leave the base model untouched and attach a small set of extra weights, called the adapter, that sits alongside the original ones and learns the user-specific adjustment. During training only the adapter weights move; at inference time the model uses the base weights plus the adapter on top. Loading a different adapter is the same as loading a different user.
+
+The adapter has rank sixteen and alpha thirty-two (the rank sets how much the adjustment is allowed to vary, and alpha scales its effect), with a small amount of dropout ($0.05$) for regularisation. It is attached at every projection inside each transformer layer where preference signal could plausibly land, both in attention and in the feed-forward block. Table~\ref{tab:hparams} lists the full hyperparameter set, including the loss-specific $\beta$ values, and these are held identical across both datasets and all training sizes so that any effect in the curves is attributable to the loss and the amount of data rather than to a hyperparameter difference between cells.
+
+A new adapter is trained from scratch for every combination of user, method, training size and seed. There is no transfer of weights between users, between training sizes or between methods, which is what makes each cell in Figure~\ref{fig:headline} an independent measurement of the loss at that particular data scale. At rank sixteen, a single adapter is only a few megabytes on disk, so storing and swapping one per user is cheap; the bottleneck in the per-user adapter regime is the data that a user can plausibly provide during onboarding, which is precisely the question we are studying.
+
+\subsection{Training}
+\label{sec:training}
+
+We train four preference-optimisation methods and run two in-context learning baselines on top of the same base model. DPO is the standard approach, tilting the model towards chosen and away from rejected by comparing its log-probabilities to a frozen reference. IPO replaces DPO's log-sigmoid loss with a squared loss designed to reduce overfitting when preferences are noisy. SimPO drops the reference model entirely and works from a length-normalised gap between chosen and rejected, which makes it cheaper to run. KTO treats each completion individually as a thumbs-up or thumbs-down signal rather than as half of a pair, so it can work on unpaired feedback. The two ICL baselines, \texttt{icl\_flat} and \texttt{icl\_chat}, skip training and instead paste the user's preferences into the prompt, either as plain text or as prior user and assistant turns in Llama-3's chat template.
+
+Each adapter is trained with AdamW at a learning rate of $0.00002$ for three epochs, with a batch size of four, gradient clipping at one, and a maximum sequence length of five hundred and twelve tokens. The $\beta$ value that controls how strongly each loss pulls the model towards chosen and away from rejected is set at $0.1$ for DPO, IPO and KTO, following the values commonly used in the literature, and at $\beta = 2$, $\gamma = 0.5$ for SimPO, following the SimPO paper. We also ran a $\beta$-sensitivity sweep across $\{0.01, 0.05, 0.1, 0.3, 0.5\}$ for the three reference-anchored losses, reported in Section~\ref{sec:prompt-beta}.
+
+For each user we fix one shuffle of their pairs per seed. The last thirty pairs of that shuffle are held out as the evaluation set, and the training set at size $n$ is the first $n$ pairs of the same list. Two things follow. The evaluation set is identical across all training sizes for a given user and seed, so the $n$-axis in Figure~\ref{fig:headline} isolates the effect of training-set size with everything else held constant. And each training set is a prefix of the next one up, so a single user's row in Table~\ref{tab:results-table} can be read as a learning curve. The base model is evaluated once and replicated across seeds, since its forward pass is deterministic.
+
+\subsection{Evaluation Protocol}
+\label{sec:eval}
+
+We evaluate each model on held-out pairwise preference accuracy. For each user, we score the chosen and rejected completion of all thirty evaluation pairs and count a pair as correct when the chosen completion receives the higher mean log-probability. Two design choices keep the comparison fair across methods. The title order in the prompt was randomised at pair generation time, so a model with no signal scores around $0.5$ rather than benefiting from a positional shortcut. KTO's training data is unpaired, but its evaluation rows are grouped by \texttt{pair\_id} and rebuilt into pairs before scoring, so every method is evaluated on the same pairs with the same scoring function.
+
+The unit of analysis is the user. Per-seed accuracies are first averaged within user so that each user contributes a single number, and the mean and standard error reported in our figures and tables are computed across the twenty-two users. At the largest training size we use a paired Wilcoxon signed-rank test on the user-level accuracies, pairing each user against themselves across methods.
+
+\subsection{Compute and Reproducibility}
+\label{sec:compute}
+
+All experiments were run on a single A100 80GB GPU rented through Jarvislabs. The base sweep took roughly four hundred and fifty minutes per dataset, covering six methods, six training sizes, two seeds and twenty-two users; the extended cold-start sizes and the $\beta$-sensitivity and prompt ablation sweeps added a comparable amount on top.
+
+The full pipeline is open-sourced on GitHub, with a \texttt{README} that walks through how to reproduce every result reported here. Each run reads its hyperparameters from a YAML config and writes the full configuration back into the \texttt{results.json} alongside the per-user accuracies, so every result file is self-describing and can be re-run by pointing the sweep script at the same config. A smoke-test config accompanies each real one and exercises the same pipeline end-to-end with a handful of users and pairs, so the setup can be checked on a laptop before committing GPU time.

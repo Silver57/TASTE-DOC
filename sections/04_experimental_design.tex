@@ -1,0 +1,105 @@
+% =============================================================================
+% 4. Experimental Design -- target ~2 pp
+% Separate from Methodology because the DESIGN (sweep grid, baselines, pre-
+% registered predictions) is what makes the contribution credible, distinct
+% from the mechanics of training.
+% =============================================================================
+
+\section{Experimental Design}
+\label{sec:design}
+
+To gather the results i organized the tests into sweeps, ecah sweep is defined by the parameters in its YAML file. The primary sweep in §4.1 is the main comparison of the six methods across the cold-start range. In §4.2 we extend the $n$-axis pushing training size past the cold-start regime to see where the ordering breaks down. The $\beta$-sensitivity sweep in §4.3 and the prompt-template ablation in §4.4 check that the primary result is not an artefact of the loss temperature or of a single prompt phrasing. Everything not listed in the four sweep grids is held fixed at the values in §3.5, so any cross-sweep comparison isolates the factor under study.
+
+\subsection{Primary Sweep}
+
+The primary experiment is the most complete one, being ran using several n values up to 100 and on both datasets. This results will allow us to clearly interpret how these methods behave in cold start situations.
+
+\begin{table}[h]
+\centering
+\caption{Primary sweep grid. Total: $4 \times 6 \times 2 \times 22 \times 2 = 4{,}224$ per-user training runs.}
+\label{tab:primary_sweep}
+\begin{tabular}{ll}
+\toprule
+\textbf{Factor} & \textbf{Values} \\
+\midrule
+Training size $n$ & $\{3, 10, 50, 100\}$ preference pairs per user \\
+Method            & DPO, IPO, SimPO, KTO, \texttt{icl\_chat}, \texttt{icl\_flat} \\
+Seed              & $\{42, 1337\}$ \\
+Users             & 22 randomly sampled users per dataset \\
+Dataset           & GoodReads, Netflix \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The training sizes start at three pairs, is the smallest $n$ at which a preference loss has anything to optimise, we then move up to ten, witch is roughly a one-minute survey, fifty sits at the upper end of plausible onboarding effort, and one hundred is past the point where a product would still call the user new. Two seeds separate signal from training noise without quadrupling compute time. Twenty-two users is what we use after runnig the §3.2 filter (enough pairs for $n = 100$ plus a thirty-pair held-out set) and is large enough for the paired Wilcoxon test in §3.6 to have reasonable power. Both datasets are included so any conclusion has to hold across two domains rather than one.
+
+\subsection{Extended Training Sizes}
+
+The primary sweep is capped at $n = 100$ because that is the upper end of what an onboarding flow can plausibly collect. It leaves open whether the performance inverts once training data grows past that cap, or whether the gap between methods persists. The extended sweep pushes the $n$-axis past the cold-start regime on the same users and datasets.
+
+\begin{table}[h]
+\centering
+\caption{Extended training-size sweep. Same users and datasets as the primary sweep; only the $n$-axis changes.}
+\label{tab:extended_sweep}
+\begin{tabular}{ll}
+\toprule
+\textbf{Factor} & \textbf{Values} \\
+\midrule
+Training size $n$ & $\{150, 200\}$ preference pairs per user \\
+Method            & DPO, IPO, SimPO, KTO, \texttt{icl\_chat}, \texttt{icl\_flat} \\
+Seed              & $\{42, 123\}$ \\
+Users             & Same 22 users per dataset as §4.1 \\
+Dataset           & GoodReads \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+One detail differs from §4.1 and is worth flagging. The ICL context window is raised to 8192 tokens, up from the primary sweep's setting, after one user hit truncation on \texttt{icl\_chat} at $n = 100$. The larger window gives the ICL baselines slightly more room than they had in §4.1, which works against the training methods rather than for them, and so does not threaten the direction of any conclusion drawn from the extended sweep.
+
+\subsection{$\beta$-Sensitivity}
+
+The primary sweep fixes $\beta = 0.1$ for DPO, IPO and KTO, a common value used in similar testing. That choice is convenient but not obviously correct in the cold-start regime, where the loss surface is shaped by very few pairs and the temperature controls how aggressively the model moves away from the reference. The $\beta$-sensitivity sweep checks whether the §4.1 ranking among the three reference-anchored losses is an artefact of that single $\beta$, or whether it holds across a range.
+
+\begin{table}[h]
+\centering
+\caption{$\beta$-sensitivity sweep. Held at $n = 50$ on the §4.1 user pool; only $\beta$ varies.}
+\label{tab:beta_sweep}
+\begin{tabular}{ll}
+\toprule
+\textbf{Factor} & \textbf{Values} \\
+\midrule
+$\beta$           & $\{0.05,\ 0.1,\ 0.5\}$ \\
+Method            & DPO, IPO, KTO \\
+Training size $n$ & 50 preference pairs per user \\
+Seed              & $\{42, 1337\}$ \\
+Users             & Same 22 users per dataset as §4.1 \\
+Dataset           & GoodReads \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+SimPO is excluded because its $\beta$ has a different role given that it scales a length-normalised gap rather than a divergence from a reference, the SimPO paper's $\beta = 2.0$ is on a different scale entirely. The two ICL baselines are excluded because they have no $\beta$. Three values are enough to see whether each method's accuracy is flat in $\beta$ or trending: $0.05$ and $0.5$ bracket the literature default by half an order of magnitude in each direction, which covers the range where the ranking could plausibly invert.
+
+\subsection{Prompt-Template Ablation}
+
+The primary sweep uses a single prompt template, the \texttt{simple} variant in §3.3. That template is the shortest of the three and the closest to how a frozen base model would be queried out of the box, but a sceptic could argue that the §4.1 ranking reflects how each method interacts with that specific phrasing rather than a property of the method itself. The prompt-template ablation re-runs the sweep with two alternative phrasings to check whether the ranking is stable.
+
+\begin{table}[h]
+\centering
+\caption{Prompt-template ablation. The pair generation is re-run per template so the chosen/rejected sequences seen during training reflect each phrasing, not only the eval-time prompt.}
+\label{tab:prompt_ablation}
+\begin{tabular}{ll}
+\toprule
+\textbf{Factor} & \textbf{Values} \\
+\midrule
+Prompt template   & \texttt{simple}, \texttt{detailed}, \texttt{system} \\
+Method            & DPO, IPO, SimPO, KTO, \texttt{icl\_chat}, \texttt{icl\_flat} \\
+Training size $n$ & 50 preference pairs per user \\
+Seed              & 42 \\
+Users             & 15 users from the GoodReads pool \\
+Dataset           & GoodReads \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The three templates span a deliberate range. \texttt{simple} is a one-line question with the two titles inserted. \texttt{detailed} restates the choice with explicit Book A / Book B framing and a trailing cue for the answer. \texttt{system} prepends a recommendation-assistant role description. The sweep is held at a single $n$, seed and dataset because the question is whether the cross-method ranking is preserved under different phrasings, not whether prompts interact with training size or dataset --- those would be separate experiments. If the §4.1 ranking among methods is preserved across all three templates, the comparison is robust to prompt phrasing. If \texttt{icl\_chat} dominates \texttt{icl\_flat} across templates, that is evidence the chat template itself is doing work beyond surface formatting --- the question that motivated splitting ICL into two variants in §2.3.
