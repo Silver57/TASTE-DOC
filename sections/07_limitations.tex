@@ -9,7 +9,7 @@
 \subsection{Limitations}
 \label{sec:limits:lim}
 
-The most important limitation is sample size. The primary sweep covers twenty-two users per dataset and the free-form sub-study covers ten. Paired Wilcoxon tests at $n = 100$ make the headline claims defensible, but the per-user grid in \cref{fig:per_user} already shows that the cold-start ICL advantage is heterogeneous on Netflix in ways the means hide. Any product recommendation in \cref{sec:business} extrapolates from a population orders of magnitude smaller than a deployed system would face.
+The most important limitation is sample size. The primary sweep covers twenty-two users per dataset and the free-form sub-study covers ten. Paired Wilcoxon tests at $n = 100$ make the headline claims defensible, but the per-user grid in \cref{fig:per_user_nf} already shows that the cold-start ICL advantage is heterogeneous on Netflix in ways the means hide. Any product recommendation in \cref{sec:business} extrapolates from a population orders of magnitude smaller than a deployed system would face.
 
 The choice of cultural-item datasets is the second constraint. GoodReads and Netflix were selected because their items are named in ways the base model has plausibly seen during pre-training, and the frozen Llama-3-8B-Instruct scores $0.550$ and $0.459$ before any user signal is added. The prompt is doing some of its work on top of a non-trivial prior. In a domain where the base model has no such prior, for example niche products, new releases, or items identified by SKU, the ICL advantage at small $n$ may not hold and the crossover in \cref{fig:primary_curves} may move or disappear.
 

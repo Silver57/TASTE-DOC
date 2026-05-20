@@ -13,10 +13,8 @@ SimPO is the only method that significantly beats the best ICL baseline at $n = 
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.48\textwidth]{images/primary_curves_goodreads.png}
-\hfill
-\includegraphics[width=0.48\textwidth]{images/primary_curves_netflix.png}
-\caption{Held-out pairwise accuracy by training size $n$ and method. Left: GoodReads. Right: Netflix. Lines are means across users and seeds; shaded regions are $\pm 1$ standard error.}
+\includegraphics[width=\textwidth]{images/updated/fig_primary_curves.pdf}
+\caption{Held-out pairwise accuracy by training size $n$ and method on GoodReads (left) and Netflix (right). Lines are means across users and seeds; shaded regions are $\pm 1$ standard error. The vertical band marks the crossover region between the cold-start and trained regimes; the dashed gray line is the frozen-base accuracy.}
 \label{fig:primary_curves}
 \end{figure}
 
@@ -78,15 +76,20 @@ Two notes qualify the comparison with §5.1. The extended sweep was run on a dif
 
 \subsection{Per-User View}
 
-The mean curves in §5.1 hide whether the gain is spread across users or concentrated in a few. Figure~\ref{fig:per_user} shows the full per-user grid: each panel is one user's learning curve under each method, on the same axes as Figure~\ref{fig:primary_curves}. Two facts emerge from the grid that are not visible in the means. No user is harmed by training at $n = 100$: on both datasets, the best trained method beats the frozen base model for every one of the twenty-two users. And no user is left stuck near chance: the worst best-method accuracy is $0.933$ on GoodReads and $0.600$ on Netflix.
+The mean curves in §5.1 hide whether the gain is spread across users or concentrated in a few. Figures~\ref{fig:per_user_gr} and \ref{fig:per_user_nf} show the full per-user grids: each panel is one user's learning curve under each method, on the same axes as Figure~\ref{fig:primary_curves}. Two facts emerge from the grid that are not visible in the means. No user is harmed by training at $n = 100$: on both datasets, the best trained method beats the frozen base model for every one of the twenty-two users. And no user is left stuck near chance: the worst best-method accuracy is $0.933$ on GoodReads and $0.600$ on Netflix.
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.48\textwidth]{images/per_user_goodreads.png}
-\hfill
-\includegraphics[width=0.48\textwidth]{images/per_user_netflix.png}
-\caption{Per-user learning curves on GoodReads (left) and Netflix (right). Each panel is one user; lines are method means across the two seeds.}
-\label{fig:per_user}
+\includegraphics[width=\textwidth]{images/updated/fig_per_user_goodreads.pdf}
+\caption{Per-user learning curves on GoodReads. Each panel is one user, sorted by best-method accuracy at $n = 100$; lines are method means across the two seeds.}
+\label{fig:per_user_gr}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth]{images/updated/fig_per_user_netflix.pdf}
+\caption{Per-user learning curves on Netflix. Same layout as Figure~\ref{fig:per_user_gr}; the heterogeneity is more visible on this dataset.}
+\label{fig:per_user_nf}
 \end{figure}
 
 \begin{table}[h]
@@ -152,9 +155,7 @@ $\beta$ & DPO & IPO & KTO & SimPO \\
 
 The prompt-template ablation re-runs the comparison under two alternative
 phrasings to check whether \S5.1 reflects a property of the methods or of
-the \texttt{simple} template. The cross-method ranking is preserved on both
-alternatives (Table~\ref{tab:prompt_acc}). SimPO is the best trained method
-under all three templates; \texttt{icl\_chat} is the best method overall
+the \texttt{simple} template. The cross-method ranking is preserved on both alternatives (Figure~\ref{fig:prompt_ablation} and Table~\ref{tab:prompt_acc}). SimPO is the best trained method under all three templates; \texttt{icl\_chat} is the best method overall
 under all three; \texttt{icl\_chat} beats \texttt{icl\_flat} on every
 template, which is the cleanest evidence in the thesis that the chat
 template itself is doing work beyond surface formatting. The one
@@ -164,6 +165,13 @@ depresses the four trained losses by three to seven points relative to
 consistent with the role-priming text competing with the LoRA signal for
 control of the model's behaviour. The ordering between methods, however,
 does not change.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth]{images/updated/fig_prompt_ablation.pdf}
+\caption{Prompt-template ablation on GoodReads at $n = 50$. Bars show accuracy for each method under three prompt phrasings (\texttt{simple}, \texttt{detailed}, \texttt{system}). The cross-method ranking is preserved across all three templates and \texttt{icl\_chat} wins on every phrasing.}
+\label{fig:prompt_ablation}
+\end{figure}
 
 \begin{table}[h]
 \centering
@@ -207,7 +215,7 @@ factorisation cannot represent.
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.85\textwidth]{images/recsys_goodreads.png}
+\includegraphics[width=0.9\textwidth]{images/updated/fig_recsys_goodreads.pdf}
 \caption{GoodReads primary curves with the three classical baselines (POP,
 IKNN, BPR) overlaid. Lines are means across users and seeds; error bars are
 $\pm 1$ standard error.}
@@ -237,7 +245,14 @@ simpo (LLM)         & .527 & .540 & .559 & .858 & .923 & \textbf{.959} \\
 \subsection{Free-Form Generation}
 \label{sec:results:judge}
 
-The methods in this thesis are evaluated by scoring fixed pairwise completions, but a deployed recommender writes its suggestions as natural-language sentences. This sub-study (\S4.5) asks whether the methods still rank the same way when the model must write a recommendation instead of score one. Two metrics are reported in Table~\ref{tab:judge_results}: the rate at which a Claude Sonnet judge prefers each method's sentence head-to-head, and the rate at which the title named in the sentence matches the book the user actually liked in the held-out set.
+The methods in this thesis are evaluated by scoring fixed pairwise completions, but a deployed recommender writes its suggestions as natural-language sentences. This sub-study (\S4.5) asks whether the methods still rank the same way when the model must write a recommendation instead of score one. Figure~\ref{fig:flip} visualises the two metrics reported in Table~\ref{tab:judge_results}: the rate at which a Claude Sonnet judge prefers each method's sentence head-to-head, and the rate at which the title named in the sentence matches the book the user actually liked in the held-out set.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.9\textwidth]{images/updated/fig_flip.pdf}
+\caption{The same three conditions evaluated under two formats. Left: held-out pairwise accuracy (fixed-completion scoring). Right: judge win-rate on free-form one-sentence recommendations. The ranking inverts: SimPO leads on scoring but \texttt{icl\_chat} leads on generation.}
+\label{fig:flip}
+\end{figure}
 
 \begin{table}[h]
 \centering
