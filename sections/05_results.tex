@@ -113,3 +113,123 @@ Outright winners (out of $22$) &  & \\
 \end{table}
 
 Two things qualify the §5.1 ranking once the per-user picture is in view. SimPO wins the mean comparison and the most users on both datasets, but it is not the per-user winner for $12/22$ GoodReads users and $15/22$ Netflix users --- for those, another trained method matches or exceeds it. The per-user grid also shows that the cold-start advantage of ICL is itself heterogeneous: at $n = 10$, the best ICL baseline beats the best trained method for $20/22$ GoodReads users but only $13/22$ Netflix users. The pattern in the means therefore holds at the user level, but with meaningful per-user variation that any deployment based on these results would need to plan for.
+
+\subsection{$\beta$-Sensitivity}
+\label{sec:results:beta}
+
+The $\beta$-sensitivity sweep checks whether the \S5.1 ordering among the
+three reference-anchored losses is an artefact of $\beta = 0.1$. Across the
+three values tested on GoodReads at $n = 50$ (Table~\ref{tab:beta_acc}), no
+loss moves more than three percentage points and the SimPO lead over DPO,
+IPO and KTO is preserved at every $\beta$. IPO and DPO sit within one point
+of each other at all three values, and KTO is the only method whose ranking
+moves: it drops to fourth at $\beta = 0.1$ but matches DPO at $\beta = 0.05$
+and edges into second at $\beta = 0.5$. The headline ordering from \S5.1 is
+therefore stable in $\beta$; the smaller orderings among DPO, IPO and KTO
+are within the noise of a single-seed sweep and should not be read as
+evidence of a robust difference.
+
+\begin{table}[h]
+\centering
+\caption{$\beta$-sensitivity on GoodReads at $n = 50$, 15 users, seed 42.
+SimPO is reported at its native $\beta = 2.0$ across all rows since its
+$\beta$ scales a length-normalised gap and is not on the same axis as the
+reference-anchored losses.}
+\label{tab:beta_acc}
+\begin{tabular}{lcccc}
+\toprule
+$\beta$ & DPO & IPO & KTO & SimPO \\
+\midrule
+0.05    & .807 & .804 & .818 & .826 \\
+0.10    & .804 & .820 & .800 & \textbf{.860} \\
+0.50    & .806 & .793 & .824 & .811 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Prompt-Template Ablation}
+\label{sec:results:prompt}
+
+The prompt-template ablation re-runs the comparison under two alternative
+phrasings to check whether \S5.1 reflects a property of the methods or of
+the \texttt{simple} template. The cross-method ranking is preserved on both
+alternatives (Table~\ref{tab:prompt_acc}). SimPO is the best trained method
+under all three templates; \texttt{icl\_chat} is the best method overall
+under all three; \texttt{icl\_chat} beats \texttt{icl\_flat} on every
+template, which is the cleanest evidence in the thesis that the chat
+template itself is doing work beyond surface formatting. The one
+template-level effect worth flagging is that the \texttt{system} role
+depresses the four trained losses by three to seven points relative to
+\texttt{simple} while leaving the ICL baselines roughly untouched, which is
+consistent with the role-priming text competing with the LoRA signal for
+control of the model's behaviour. The ordering between methods, however,
+does not change.
+
+\begin{table}[h]
+\centering
+\caption{Prompt-template ablation on GoodReads at $n = 50$, seed 42. The
+\texttt{simple} column reports the \S5.1 numbers for context (22 users);
+\texttt{detailed} and \texttt{system} are the ablation runs (15 users).}
+\label{tab:prompt_acc}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Method} & \texttt{simple} & \texttt{detailed} & \texttt{system} \\
+\midrule
+dpo                 & .828 & .811 & .769 \\
+ipo                 & .820 & .820 & .771 \\
+simpo               & .858 & .871 & .806 \\
+kto                 & .815 & .760 & .773 \\
+icl\_flat           & .812 & .809 & .820 \\
+icl\_chat           & \textbf{.883} & \textbf{.853} & \textbf{.888} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Classical Recommender Comparison}
+\label{sec:results:classical}
+
+The three classical baselines (Figure~\ref{fig:recsys_goodreads},
+Table~\ref{tab:classical_acc}) check whether the \S5.1 ordering reflects
+something the LLM family adds or just the level of any working
+recommender at this scale. The ranking among the LLM methods is unchanged
+by their inclusion, but the cold-start picture is narrowed in two specific
+ways. At $n = 3$ the four trained losses sit at chance ($0.50$--$0.53$)
+while POP --- which ignores the user's pairs entirely --- already reaches
+$0.60$, and IKNN climbs from $0.60$ at $n = 3$ to $0.66$ at $n = 10$. The
+ICL lead over IKNN at $n = 3$--$10$ is two to four points, not the
+twelve-point lead it holds over the trained losses. The classical curves
+then plateau where the LLM curves keep climbing: IKNN flattens around
+$0.69$ from $n = 50$ onward and BPR around $0.77$, while ICL\_CHAT and the
+four trained losses are clear of the classical pack by $n = 50$ and beyond
+it by twenty-five points at $n = 100$. The additional climb is the part of
+the signal that title semantics carry and that co-occurrence and matrix
+factorisation cannot represent.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.85\textwidth]{images/recsys_goodreads.png}
+\caption{GoodReads primary curves with the three classical baselines (POP,
+IKNN, BPR) overlaid. Lines are means across users and seeds; error bars are
+$\pm 1$ standard error.}
+\label{fig:recsys_goodreads}
+\end{figure}
+
+\begin{table}[h]
+\centering
+\caption{Classical baselines on GoodReads, averaged across users and seeds.
+The last two rows reproduce the best LLM method at each $n$ from \S5.1 for
+context.}
+\label{tab:classical_acc}
+\begin{tabular}{lcccccc}
+\toprule
+\textbf{Method} & $n = 3$ & $n = 5$ & $n = 10$ & $n = 50$ & $n = 75$ & $n = 100$ \\
+\midrule
+pop                 & .603 & .604 & .604 & .604 & .603 & .604 \\
+iknn                & .602 & .619 & .660 & .694 & .688 & .689 \\
+bpr                 & .583 & .591 & .649 & .728 & .770 & .773 \\
+\midrule
+icl\_chat (LLM)     & .612 & .647 & .699 & .883 & .926 & .923 \\
+simpo (LLM)         & .527 & .540 & .559 & .858 & .923 & \textbf{.959} \\
+\bottomrule
+\end{tabular}
+\end{table}

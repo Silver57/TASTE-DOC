@@ -8,7 +8,7 @@
 \section{Experimental Design}
 \label{sec:design}
 
-To gather the results i organized the tests into sweeps, ecah sweep is defined by the parameters in its YAML file. The primary sweep in §4.1 is the main comparison of the six methods across the cold-start range. In §4.2 we extend the $n$-axis pushing training size past the cold-start regime to see where the ordering breaks down. The $\beta$-sensitivity sweep in §4.3 and the prompt-template ablation in §4.4 check that the primary result is not an artefact of the loss temperature or of a single prompt phrasing. Everything not listed in the four sweep grids is held fixed at the values in §3.5, so any cross-sweep comparison isolates the factor under study.
+To gather the results I organized the tests into sweeps, each sweep is defined by the parameters in its YAML file. The primary sweep in §4.1 is the main comparison of the six methods across the cold-start range. In §4.2 we extend the $n$-axis pushing training size past the cold-start regime to see where the ordering breaks down. The $\beta$-sensitivity sweep in §4.3 and the prompt-template ablation in §4.4 check that the primary result is not an artifact of the loss temperature or of a single prompt phrasing. Everything not listed in the four sweep grids is held fixed at the values in §3.5, so any cross-sweep comparison isolates the factor under study.
 
 \subsection{Primary Sweep}
 
@@ -103,3 +103,26 @@ Dataset           & GoodReads \\
 \end{table}
 
 The three templates span a deliberate range. \texttt{simple} is a one-line question with the two titles inserted. \texttt{detailed} restates the choice with explicit Book A / Book B framing and a trailing cue for the answer. \texttt{system} prepends a recommendation-assistant role description. The sweep is held at a single $n$, seed and dataset because the question is whether the cross-method ranking is preserved under different phrasings, not whether prompts interact with training size or dataset --- those would be separate experiments. If the §4.1 ranking among methods is preserved across all three templates, the comparison is robust to prompt phrasing. If \texttt{icl\_chat} dominates \texttt{icl\_flat} across templates, that is evidence the chat template itself is doing work beyond surface formatting --- the question that motivated splitting ICL into two variants in §2.3.
+
+\subsection{Classical Recommender Baselines}
+\label{sec:design:classical}
+
+To anchor the absolute level of the LLM curves we add three non-LLM
+baselines from the recommender-systems literature: a non-personalised
+popularity ranker (POP), item-based collaborative filtering
+(IKNN, \citep{sarwar2001itemcf}), and Bayesian Personalised Ranking
+(BPR, \citep{rendle2009bpr}). The three differ in how much of the user's
+signal they consume --- none, a sparse $\pm 1$ profile over an item-item
+cosine matrix, and a latent vector fitted on top of pretrained item
+embeddings --- which lets the cold-start curves be read against an ascending
+baseline rather than a flat one.
+
+Every baseline is evaluated under the same protocol as \S4.1: same
+twenty-two eval users, same training sizes, same thirty held-out pairs per
+user, and a background interaction matrix built from all ratings except
+those of the eval users. The classical orchestrator seeds its per-user split
+via SHA-256 rather than Python's process-randomised \texttt{hash()}, so the
+held-out subset for a given cell does not match the LLM run's cell-for-cell.
+Means across users and seeds remain directly comparable and are what \S5
+reports; per-user paired tests across the LLM and classical families would
+not be valid and are not reported.
