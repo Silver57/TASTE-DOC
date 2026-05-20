@@ -234,7 +234,7 @@ simpo (LLM)         & .527 & .540 & .559 & .858 & .923 & \textbf{.959} \\
 \end{tabular}
 \end{table}
 
-\subsection{Free-Form Generation Sub-Study}
+\subsection{Free-Form Generation}
 \label{sec:results:judge}
 
 The methods in this thesis are evaluated by scoring fixed pairwise completions, but a deployed recommender writes its suggestions as natural-language sentences. This sub-study (\S4.5) asks whether the methods still rank the same way when the model must write a recommendation instead of score one. Two metrics are reported in Table~\ref{tab:judge_results}: the rate at which a Claude Sonnet judge prefers each method's sentence head-to-head, and the rate at which the title named in the sentence matches the book the user actually liked in the held-out set.
