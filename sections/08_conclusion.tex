@@ -7,15 +7,6 @@
 \section{Conclusion}
 \label{sec:conclusion}
 
-% =============================================================================
-% 8. Conclusion -- target ~1 pp
-% No new content. Restate question, headline empirical answer, BA takeaway,
-% and one forward sentence.
-% =============================================================================
-
-\section{Conclusion}
-\label{sec:conclusion}
-
 This thesis asked when a company personalising an LLM at the cold start should train a per-user preference-optimisation adapter and when it should put the same data into the prompt and leave the model frozen. The answer depends on two variables, not one, and the second is not visible in the standard offline benchmark.
 
 On fixed-completion scoring the crossover is clean. With ten or fewer preference pairs per user, in-context learning beats every trained method on both GoodReads and Netflix. Between ten and fifty pairs the trained methods catch up, and at one hundred pairs SimPO leads \texttt{icl\_chat} by 3.6 points on GoodReads and 5.9 points on Netflix, with the gap widening further at $n = 150$. SimPO is the only method that significantly beats the best ICL baseline under a paired test.
