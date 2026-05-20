@@ -233,3 +233,25 @@ simpo (LLM)         & .527 & .540 & .559 & .858 & .923 & \textbf{.959} \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+\subsection{Free-Form Generation Sub-Study}
+\label{sec:results:judge}
+
+The methods in this thesis are evaluated by scoring fixed pairwise completions, but a deployed recommender writes its suggestions as natural-language sentences. This sub-study (\S4.5) asks whether the methods still rank the same way when the model must write a recommendation instead of score one. Two metrics are reported in Table~\ref{tab:judge_results}: the rate at which a Claude Sonnet judge prefers each method's sentence head-to-head, and the rate at which the title named in the sentence matches the book the user actually liked in the held-out set.
+
+\begin{table}[h]
+\centering
+\caption{Free-form generation sub-study on GoodReads, 10 users $\times$ 10 held-out pairs $= 100$ generations per condition. Judge win rate is across the three pairwise matchups; alignment is the rate at which the parsed choice equals the held-out liked title, with a one-sided binomial $p$ against chance.}
+\label{tab:judge_results}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Condition} & \textbf{Judge win rate} & \textbf{Alignment rate} & $p$ vs chance \\
+\midrule
+\texttt{icl\_chat} ($n = 10$) & \textbf{.655} & \textbf{.790} & $2.2 \times 10^{-9}$ \\
+simpo ($n = 100$)             & .460          & .590          & $.044$ \\
+base                          & .385          & .550          & $.184$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The ranking flips. \texttt{icl\_chat}, which puts ten of the user's preferences directly into the prompt, writes the better recommendation on both measures and is the only condition whose alignment is clearly above chance. SimPO, trained on a hundred per-user preferences, writes recommendations that are statistically indistinguishable from the untrained base, and the two name the same book on $94$ of $100$ cells. The training changes the log-probability score the model assigns to a fixed completion but almost never changes the book the model would actually recommend, because simpo learns to score a pre-written format it never has to produce. \texttt{icl\_chat} places the user's preferences in the prompt at generation time, where the model has to attend to them. The practical implication is that the offline accuracy used in §5.1 cannot be relied on alone: a method that wins on the benchmark may produce no improvement in the format the user actually sees.

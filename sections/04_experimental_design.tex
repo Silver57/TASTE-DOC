@@ -126,3 +126,27 @@ held-out subset for a given cell does not match the LLM run's cell-for-cell.
 Means across users and seeds remain directly comparable and are what \S5
 reports; per-user paired tests across the LLM and classical families would
 not be valid and are not reported.
+
+\subsection{Free-Form Generation Sub-Study}
+
+The four sweeps above all score fixed completions under the model's log-probability distribution. A small sub-study tests whether those shifts transfer to free-form generation, the format a deployed system would actually use.
+
+\begin{table}[h]
+\centering
+\caption{Free-form generation sub-study.}
+\label{tab:judge_study}
+\begin{tabular}{ll}
+\toprule
+\textbf{Factor} & \textbf{Values} \\
+\midrule
+Condition       & SimPO at $n=100$,\ \texttt{icl\_chat} at $n=10$,\ base \\
+Users           & 10 from the §4.1 GoodReads pool \\
+Held-out pairs  & 10 per user \\
+Generation      & Greedy, 80 tokens, titles quoted in prose \\
+Judge           & Claude Sonnet 4.6, temperature 0 \\
+Dataset         & GoodReads \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Each condition produces a one-sentence recommendation per cell, from which two metrics are derived: a pairwise judge verdict over the three condition pairs (with order randomised), and a parser-derived alignment rate measuring whether the named title matches the held-out liked book, tested against chance with a one-sided binomial. SimPO at $n=100$ is the §4.1 top performer, \texttt{icl\_chat} at $n=10$ the cold-start sweet spot, and base the catch trial. If the catch trial wins, the offline-to-free-form gap is itself the result.
