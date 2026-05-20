@@ -7,3 +7,21 @@
 \section{Conclusion}
 \label{sec:conclusion}
 
+% =============================================================================
+% 8. Conclusion -- target ~1 pp
+% No new content. Restate question, headline empirical answer, BA takeaway,
+% and one forward sentence.
+% =============================================================================
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+This thesis asked when a company personalising an LLM at the cold start should train a per-user preference-optimisation adapter and when it should put the same data into the prompt and leave the model frozen. The answer depends on two variables, not one, and the second is not visible in the standard offline benchmark.
+
+On fixed-completion scoring the crossover is clean. With ten or fewer preference pairs per user, in-context learning beats every trained method on both GoodReads and Netflix. Between ten and fifty pairs the trained methods catch up, and at one hundred pairs SimPO leads \texttt{icl\_chat} by 3.6 points on GoodReads and 5.9 points on Netflix, with the gap widening further at $n = 150$. SimPO is the only method that significantly beats the best ICL baseline under a paired test.
+
+That ranking does not survive the move to free-form generation. When the same models are asked to write a one-sentence recommendation rather than score a fixed pair, \texttt{icl\_chat} at $n = 10$ wins the head-to-head judge comparison 65.5 percent of the time and names the user's held-out liked book 79 percent of the time, while SimPO at $n = 100$ drops to 46 percent on the judge and 59 percent on alignment, statistically indistinguishable from the untrained base. The two name the same book on $94$ of $100$ cells. A LoRA adapter sharpens the log-probability margin on the training format and leaves the generation distribution essentially untouched.
+
+The managerial takeaway is that the cold-start choice is a two-dimensional decision. Products that score or rank fixed options should start in ICL and switch to a trained adapter once the average user crosses about fifty preferences. Products whose output is text the user actually reads should stay in ICL across the range this thesis tested, because the accuracy gap that justifies training in the first regime does not appear in the second. The data infrastructure is identical in both cases, so the choice to collect preferences now does not commit the company to either deployment path.
+
+The forward direction is to close that gap with training objectives, LoRA configurations, and evaluation protocols that act on what the model writes rather than on what it ranks.

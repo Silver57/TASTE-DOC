@@ -9,3 +9,17 @@
 \subsection{Limitations}
 \label{sec:limits:lim}
 
+The most important limitation is sample size. The primary sweep covers twenty-two users per dataset and the free-form sub-study covers ten. Paired Wilcoxon tests at $n = 100$ make the headline claims defensible, but the per-user grid in \cref{fig:per_user} already shows that the cold-start ICL advantage is heterogeneous on Netflix in ways the means hide. Any product recommendation in \cref{sec:business} extrapolates from a population orders of magnitude smaller than a deployed system would face.
+
+The choice of cultural-item datasets is the second constraint. GoodReads and Netflix were selected because their items are named in ways the base model has plausibly seen during pre-training, and the frozen Llama-3-8B-Instruct scores $0.550$ and $0.459$ before any user signal is added. The prompt is doing some of its work on top of a non-trivial prior. In a domain where the base model has no such prior, for example niche products, new releases, or items identified by SKU, the ICL advantage at small $n$ may not hold and the crossover in \cref{fig:primary_curves} may move or disappear.
+
+The free-form sub-study is the noisiest measurement in the thesis and carries the most weight in \cref{sec:business}. It uses a single dataset, a single base model, a single judge (Claude Sonnet 4.6), greedy decoding, and one LoRA configuration. A different judge, a different decoding temperature, or a higher LoRA rank could move the numbers. The finding that SimPO and the base name the same book on $94$ of $100$ cells is hard to explain away, but it should be replicated under different conditions before it carries the weight \cref{sec:business:economics} places on it. Two smaller constraints are worth flagging: each cell averages two seeds, which stabilises the means but not the variance, and the alignment-economics calculation extrapolates from API list prices rather than a production deployment.
+
+\subsection{Future Work}
+\label{sec:limits:future}
+
+The most productive next step is the open question \cref{sec:business:economics} flags for the AI community. The methods studied here sharpen the log-probability margin on the training format but leave the generation distribution largely untouched, and the natural follow-up is to cross the four trained methods with two or three LoRA ranks and report both pairwise and free-form metrics on the same users. That single study would tell the field whether the format gap is a property of the rank-16 setting or of the family.
+
+A second direction is replication across base models. The cold-start floor in \cref{tab:primary_acc} is partly a measurement of Llama-3-8B's specific pretrained knowledge. Running the same sweep on a smaller base (around three billion parameters) and a larger one (around seventy billion) would establish whether the crossover moves with capability, which is the question a product team picking a serving model needs answered. Both replications use the existing infrastructure and fit inside a GPU month.
+
+A third direction moves toward deployment. Real users do not deliver a hundred preference pairs in one session; they accumulate them across weeks. The streaming case, and the related question of cross-user transfer in which an adapter is pre-trained on a held-out user pool before fine-tuning on the cold-start user, are the obvious next tests. Cross-user transfer in particular could close the small-$n$ gap that the thesis currently hands entirely to ICL.
