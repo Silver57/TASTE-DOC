@@ -1,11 +1,25 @@
 % =============================================================================
 % references.bib -- BibLaTeX database
-% Consolidated version covering every citation in sections 1, 2, 3, and 6.
-% Drop-in replacement for the existing references.bib.
 %
-% Entries are grouped by topic. Within each group, ordering is roughly
-% chronological so the bibliography compiles in a sensible order under
-% authoryear style.
+% This revision aligns with the Nova SBE Library's recommended style
+% (Chicago Author-Date) and is meant to be compiled with the
+% biblatex-chicago package using `authordate' as configured in main.tex.
+%
+% Key changes vs. the previous version:
+%   - arXiv preprints are typed as @online with `eprint' / `eprinttype'
+%     and `url' fields, so biblatex-chicago renders them properly
+%     ("Author. Year. \"Title.\" arXiv:XXXX.XXXXX.") rather than as if
+%     the journal were literally called "arXiv preprint arXiv:...".
+%   - DOIs and URLs added where available.
+%   - Reid Gemini entry now lists the first 7 authors + others, so
+%     Chicago Author-Date can produce "first 7 + et al." correctly.
+%   - Llama 3 technical report points to the actual arXiv ID.
+%   - Olsson induction-heads entry now carries the Transformer Circuits URL.
+%
+% NOTE: biblatex-chicago with maxbibnames=7 / minbibnames=7 (set in main.tex)
+% will automatically truncate entries with >10 authors to "first 7 + et al."
+% in the reference list. The full author list is still kept in this file so
+% future format changes do not lose data.
 % =============================================================================
 
 
@@ -15,89 +29,113 @@
   title   = {Direct Preference Optimization: Your Language Model is Secretly a Reward Model},
   author  = {Rafailov, Rafael and Sharma, Archit and Mitchell, Eric and Ermon, Stefano and Manning, Christopher D. and Finn, Chelsea},
   journal = {Advances in Neural Information Processing Systems},
+  volume  = {36},
   year    = {2023},
+  url     = {https://arxiv.org/abs/2305.18290},
 }
 
-@article{azar2024ipo,
-  title   = {A General Theoretical Paradigm to Understand Learning from Human Preferences},
-  author  = {Azar, Mohammad Gheshlaghi and Rowland, Mark and Piot, Bilal and Guo, Daniel and Calandriello, Daniele and Valko, Michal and Munos, R{\'e}mi},
-  journal = {AISTATS},
-  year    = {2024},
+@inproceedings{azar2024ipo,
+  title     = {A General Theoretical Paradigm to Understand Learning from Human Preferences},
+  author    = {Azar, Mohammad Gheshlaghi and Rowland, Mark and Piot, Bilal and Guo, Daniel and Calandriello, Daniele and Valko, Michal and Munos, R{\'e}mi},
+  booktitle = {Proceedings of the 27th International Conference on Artificial Intelligence and Statistics (AISTATS)},
+  year      = {2024},
+  url       = {https://arxiv.org/abs/2310.12036},
 }
 
-@article{meng2024simpo,
-  title   = {SimPO: Simple Preference Optimization with a Reference-Free Reward},
-  author  = {Meng, Yu and Xia, Mengzhou and Chen, Danqi},
-  journal = {arXiv preprint arXiv:2405.14734},
-  year    = {2024},
+@online{meng2024simpo,
+  title       = {{SimPO}: Simple Preference Optimization with a Reference-Free Reward},
+  author      = {Meng, Yu and Xia, Mengzhou and Chen, Danqi},
+  year        = {2024},
+  eprint      = {2405.14734},
+  eprinttype  = {arXiv},
+  eprintclass = {cs.CL},
+  url         = {https://arxiv.org/abs/2405.14734},
 }
 
-@article{ethayarajh2024kto,
-  title   = {KTO: Model Alignment as Prospect Theoretic Optimization},
-  author  = {Ethayarajh, Kawin and Xu, Winnie and Muennighoff, Niklas and Jurafsky, Dan and Kiela, Douwe},
-  journal = {arXiv preprint arXiv:2402.01306},
-  year    = {2024},
+@online{ethayarajh2024kto,
+  title       = {{KTO}: Model Alignment as Prospect Theoretic Optimization},
+  author      = {Ethayarajh, Kawin and Xu, Winnie and Muennighoff, Niklas and Jurafsky, Dan and Kiela, Douwe},
+  year        = {2024},
+  eprint      = {2402.01306},
+  eprinttype  = {arXiv},
+  eprintclass = {cs.LG},
+  url         = {https://arxiv.org/abs/2402.01306},
 }
 
-@article{xiao2024dposurvey,
-  title   = {A Comprehensive Survey of Direct Preference Optimization:
-             Datasets, Theories, Variants, and Applications},
-  author  = {Xiao, Wenyi and Wang, Zechuan and Gan, Leilei and Zhao, Shuai
-             and Li, Zongyue and Lei, Ruirui and He, Wanggui and Tuan, Luu Anh
-             and Chen, Long and Jiang, Hao and Zhao, Zhou and Wu, Fei},
-  journal = {arXiv preprint arXiv:2410.15595},
-  year    = {2024},
+@online{xiao2024dposurvey,
+  title       = {A Comprehensive Survey of Direct Preference Optimization:
+                 Datasets, Theories, Variants, and Applications},
+  author      = {Xiao, Wenyi and Wang, Zechuan and Gan, Leilei and Zhao, Shuai
+                 and Li, Zongyue and Lei, Ruirui and He, Wanggui and Tuan, Luu Anh
+                 and Chen, Long and Jiang, Hao and Zhao, Zhou and Wu, Fei},
+  year        = {2024},
+  eprint      = {2410.15595},
+  eprinttype  = {arXiv},
+  eprintclass = {cs.CL},
+  url         = {https://arxiv.org/abs/2410.15595},
 }
 
 
 % ---------- Foundational LLM / alignment papers (Section 1, 2, 6) -----------
 
-@article{brown2020gpt3,
-  title   = {Language Models are Few-Shot Learners},
-  author  = {Brown, Tom B. and Mann, Benjamin and Ryder, Nick and Subbiah, Melanie and Kaplan, Jared and Dhariwal, Prafulla and Neelakantan, Arvind and Shyam, Pranav and Sastry, Girish and Askell, Amanda and Agarwal, Sandhini and Herbert-Voss, Ariel and Krueger, Gretchen and Henighan, Tom and Child, Rewon and Ramesh, Aditya and Ziegler, Daniel M. and Wu, Jeffrey and Winter, Clemens and Hesse, Christopher and Chen, Mark and Sigler, Eric and Litwin, Mateusz and Gray, Scott and Chess, Benjamin and Clark, Jack and Berner, Christopher and McCandlish, Sam and Radford, Alec and Sutskever, Ilya and Amodei, Dario},
-  journal = {Advances in Neural Information Processing Systems},
-  year    = {2020},
+@inproceedings{brown2020gpt3,
+  title     = {Language Models are Few-Shot Learners},
+  author    = {Brown, Tom B. and Mann, Benjamin and Ryder, Nick and Subbiah, Melanie and Kaplan, Jared and Dhariwal, Prafulla and Neelakantan, Arvind and Shyam, Pranav and Sastry, Girish and Askell, Amanda and Agarwal, Sandhini and Herbert-Voss, Ariel and Krueger, Gretchen and Henighan, Tom and Child, Rewon and Ramesh, Aditya and Ziegler, Daniel M. and Wu, Jeffrey and Winter, Clemens and Hesse, Christopher and Chen, Mark and Sigler, Eric and Litwin, Mateusz and Gray, Scott and Chess, Benjamin and Clark, Jack and Berner, Christopher and McCandlish, Sam and Radford, Alec and Sutskever, Ilya and Amodei, Dario},
+  booktitle = {Advances in Neural Information Processing Systems},
+  volume    = {33},
+  year      = {2020},
+  url       = {https://arxiv.org/abs/2005.14165},
 }
 
 @inproceedings{christiano2017rlhf,
   title     = {Deep Reinforcement Learning from Human Preferences},
   author    = {Christiano, Paul F. and Leike, Jan and Brown, Tom B. and Martic, Miljan and Legg, Shane and Amodei, Dario},
   booktitle = {Advances in Neural Information Processing Systems},
+  volume    = {30},
   year      = {2017},
+  url       = {https://arxiv.org/abs/1706.03741},
 }
 
 @inproceedings{ouyang2022instructgpt,
   title     = {Training Language Models to Follow Instructions with Human Feedback},
   author    = {Ouyang, Long and Wu, Jeff and Jiang, Xu and Almeida, Diogo and Wainwright, Carroll L. and Mishkin, Pamela and Zhang, Chong and Agarwal, Sandhini and Slama, Katarina and Ray, Alex and Schulman, John and Hilton, Jacob and Kelton, Fraser and Miller, Luke and Simens, Maddie and Askell, Amanda and Welinder, Peter and Christiano, Paul and Leike, Jan and Lowe, Ryan},
   booktitle = {Advances in Neural Information Processing Systems},
+  volume    = {35},
   year      = {2022},
+  url       = {https://arxiv.org/abs/2203.02155},
 }
 
 
 % ---------- Parameter-efficient fine-tuning (Section 1, 2, 3) ---------------
 
-@article{hu2021lora,
-  title   = {LoRA: Low-Rank Adaptation of Large Language Models},
-  author  = {Hu, Edward J. and Shen, Yelong and Wallis, Phillip and Allen-Zhu, Zeyuan and Li, Yuanzhi and Wang, Shean and Wang, Lu and Chen, Weizhu},
-  journal = {arXiv preprint arXiv:2106.09685},
-  year    = {2021},
+@online{hu2021lora,
+  title       = {{LoRA}: Low-Rank Adaptation of Large Language Models},
+  author      = {Hu, Edward J. and Shen, Yelong and Wallis, Phillip and Allen-Zhu, Zeyuan and Li, Yuanzhi and Wang, Shean and Wang, Lu and Chen, Weizhu},
+  year        = {2021},
+  eprint      = {2106.09685},
+  eprinttype  = {arXiv},
+  eprintclass = {cs.CL},
+  url         = {https://arxiv.org/abs/2106.09685},
 }
 
 
 % ---------- In-context learning (Section 2.3) -------------------------------
 
-@article{olsson2022induction,
-  title   = {In-context Learning and Induction Heads},
-  author  = {Olsson, Catherine and Elhage, Nelson and Nanda, Neel and Joseph, Nicholas and DasSarma, Nova and Henighan, Tom and Mann, Ben and Askell, Amanda and Bai, Yuntao and Chen, Anna and Conerly, Tom and Drain, Dawn and Ganguli, Deep and Hatfield-Dodds, Zac and Hernandez, Danny and Johnston, Scott and Jones, Andy and Kernion, Jackson and Lovitt, Liane and Ndousse, Kamal and Amodei, Dario and Brown, Tom and Clark, Jack and Kaplan, Jared and McCandlish, Sam and Olah, Chris},
-  journal = {Transformer Circuits Thread (Anthropic)},
-  year    = {2022},
+@online{olsson2022induction,
+  title  = {In-context Learning and Induction Heads},
+  author = {Olsson, Catherine and Elhage, Nelson and Nanda, Neel and Joseph, Nicholas and DasSarma, Nova and Henighan, Tom and Mann, Ben and Askell, Amanda and Bai, Yuntao and Chen, Anna and Conerly, Tom and Drain, Dawn and Ganguli, Deep and Hatfield-Dodds, Zac and Hernandez, Danny and Johnston, Scott and Jones, Andy and Kernion, Jackson and Lovitt, Liane and Ndousse, Kamal and Amodei, Dario and Brown, Tom and Clark, Jack and Kaplan, Jared and McCandlish, Sam and Olah, Chris},
+  year   = {2022},
+  organization = {Anthropic},
+  note   = {Transformer Circuits Thread},
+  url    = {https://transformer-circuits.pub/2022/in-context-learning-and-induction-heads/index.html},
 }
 
-@article{dong2024iclsurvey,
-  title   = {A Survey on In-context Learning},
-  author  = {Dong, Qingxiu and Li, Lei and Dai, Damai and Zheng, Ce and Ma, Jingyuan and Li, Rui and Xia, Heming and Xu, Jingjing and Wu, Zhiyong and Liu, Tianyu and Chang, Baobao and Sun, Xu and Sui, Zhifang},
-  journal = {EMNLP},
-  year    = {2024},
+@inproceedings{dong2024iclsurvey,
+  title     = {A Survey on In-context Learning},
+  author    = {Dong, Qingxiu and Li, Lei and Dai, Damai and Zheng, Ce and Ma, Jingyuan and Li, Rui and Xia, Heming and Xu, Jingjing and Wu, Zhiyong and Liu, Tianyu and Chang, Baobao and Sun, Xu and Sui, Zhifang},
+  booktitle = {Proceedings of the 2024 Conference on Empirical Methods in Natural Language Processing (EMNLP)},
+  year      = {2024},
+  url       = {https://arxiv.org/abs/2301.00234},
 }
 
 
@@ -107,29 +145,38 @@
   title     = {Retrieval-Augmented Generation for Knowledge-Intensive {NLP} Tasks},
   author    = {Lewis, Patrick and Perez, Ethan and Piktus, Aleksandra and Petroni, Fabio and Karpukhin, Vladimir and Goyal, Naman and K{\"u}ttler, Heinrich and Lewis, Mike and Yih, Wen-tau and Rockt{\"a}schel, Tim and Riedel, Sebastian and Kiela, Douwe},
   booktitle = {Advances in Neural Information Processing Systems},
+  volume    = {33},
   year      = {2020},
+  url       = {https://arxiv.org/abs/2005.11401},
 }
 
 @inproceedings{borgeaud2022retro,
   title     = {Improving Language Models by Retrieving from Trillions of Tokens},
   author    = {Borgeaud, Sebastian and Mensch, Arthur and Hoffmann, Jordan and Cai, Trevor and Rutherford, Eliza and Millican, Katie and van den Driessche, George and Lespiau, Jean-Baptiste and Damoc, Bogdan and Clark, Aidan and others},
-  booktitle = {International Conference on Machine Learning},
+  booktitle = {Proceedings of the 39th International Conference on Machine Learning (ICML)},
   year      = {2022},
+  url       = {https://arxiv.org/abs/2112.04426},
 }
 
-@article{reid2024gemini,
-  title   = {Gemini 1.5: Unlocking Multimodal Understanding Across Millions of Tokens of Context},
-  author  = {Reid, Machel and others},
-  journal = {arXiv preprint arXiv:2403.05530},
-  year    = {2024},
+@online{reid2024gemini,
+  title       = {{Gemini 1.5}: Unlocking Multimodal Understanding Across Millions of Tokens of Context},
+  author      = {Reid, Machel and Savinov, Nikolay and Teplyashin, Denis and Lepikhin, Dmitry and Lillicrap, Timothy and Alayrac, Jean-Baptiste and Soricut, Radu and others},
+  year        = {2024},
+  eprint      = {2403.05530},
+  eprinttype  = {arXiv},
+  eprintclass = {cs.CL},
+  url         = {https://arxiv.org/abs/2403.05530},
 }
 
 @article{liu2023lostmiddle,
   title   = {Lost in the Middle: How Language Models Use Long Contexts},
   author  = {Liu, Nelson F. and Lin, Kevin and Hewitt, John and Paranjape, Ashwin and Bevilacqua, Michele and Petroni, Fabio and Liang, Percy},
   journal = {Transactions of the Association for Computational Linguistics},
+  volume  = {12},
+  pages   = {157--173},
   year    = {2024},
-  note    = {Preprint 2023, published 2024},
+  doi     = {10.1162/tacl_a_00638},
+  url     = {https://arxiv.org/abs/2307.03172},
 }
 
 
@@ -143,6 +190,25 @@
   number  = {8},
   pages   = {30--37},
   year    = {2009},
+  doi     = {10.1109/MC.2009.263},
+}
+
+@inproceedings{sarwar2001itemcf,
+  title     = {Item-Based Collaborative Filtering Recommendation Algorithms},
+  author    = {Sarwar, Badrul and Karypis, George and Konstan, Joseph and Riedl, John},
+  booktitle = {Proceedings of the 10th International Conference on World Wide Web (WWW)},
+  pages     = {285--295},
+  year      = {2001},
+  doi       = {10.1145/371920.372071},
+}
+
+@inproceedings{rendle2009bpr,
+  title     = {{BPR}: Bayesian Personalized Ranking from Implicit Feedback},
+  author    = {Rendle, Steffen and Freudenthaler, Christoph and Gantner, Zeno and Schmidt-Thieme, Lars},
+  booktitle = {Proceedings of the 25th Conference on Uncertainty in Artificial Intelligence (UAI)},
+  pages     = {452--461},
+  year      = {2009},
+  url       = {https://arxiv.org/abs/1205.2618},
 }
 
 
@@ -153,13 +219,18 @@
   author    = {Bao, Keqin and Zhang, Jizhi and Zhang, Yang and Wang, Wenjie and Feng, Fuli and He, Xiangnan},
   booktitle = {Proceedings of the 17th ACM Conference on Recommender Systems},
   year      = {2023},
+  doi       = {10.1145/3604915.3608857},
+  url       = {https://arxiv.org/abs/2305.00447},
 }
 
-@article{friedman2023recllm,
-  title   = {Leveraging Large Language Models in Conversational Recommender Systems},
-  author  = {Friedman, Luke and Ahuja, Sameer and Allen, David and Tan, Zhenning and Sidahmed, Hakim and Long, Changbo and Xie, Jun and Schubiner, Gabriel and Patel, Ajay and Lara, Harsh and Chu, Brian and Chen, Zexi and Tiwari, Manoj},
-  journal = {arXiv preprint arXiv:2305.07961},
-  year    = {2023},
+@online{friedman2023recllm,
+  title       = {Leveraging Large Language Models in Conversational Recommender Systems},
+  author      = {Friedman, Luke and Ahuja, Sameer and Allen, David and Tan, Zhenning and Sidahmed, Hakim and Long, Changbo and Xie, Jun and Schubiner, Gabriel and Patel, Ajay and Lara, Harsh and Chu, Brian and Chen, Zexi and Tiwari, Manoj},
+  year        = {2023},
+  eprint      = {2305.07961},
+  eprinttype  = {arXiv},
+  eprintclass = {cs.IR},
+  url         = {https://arxiv.org/abs/2305.07961},
 }
 
 @article{fan2024recllmsurvey,
@@ -167,6 +238,8 @@
   author  = {Fan, Wenqi and Zhao, Zihuai and Li, Jiatong and Liu, Yunqing and Mei, Xiaowei and Wang, Yiqi and Wen, Zhen and Wang, Fei and Zhao, Xiangyu and Tang, Jiliang and Li, Qing},
   journal = {IEEE Transactions on Knowledge and Data Engineering},
   year    = {2024},
+  doi     = {10.1109/TKDE.2024.3392335},
+  url     = {https://arxiv.org/abs/2307.02046},
 }
 
 
@@ -175,34 +248,43 @@
 @inproceedings{salemi2024lamp,
   title     = {{LaMP}: When Large Language Models Meet Personalization},
   author    = {Salemi, Alireza and Mysore, Sheshera and Bendersky, Michael and Zamani, Hamed},
-  booktitle = {Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics},
+  booktitle = {Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics (ACL)},
   year      = {2024},
+  url       = {https://arxiv.org/abs/2304.11406},
 }
 
-@article{singh2025fspo,
-  title   = {{FSPO}: Few-Shot Preference Optimization of Synthetic Preference
-             Data in {LLMs} Elicits Effective Personalization to Real Users},
-  author  = {Singh, Anikait and Hsu, Sheryl and Hsu, Kyle and Mitchell, Eric
-             and Ermon, Stefano and Hashimoto, Tatsunori and Sharma, Archit
-             and Finn, Chelsea},
-  journal = {arXiv preprint arXiv:2502.19312},
-  year    = {2025},
+@online{singh2025fspo,
+  title       = {{FSPO}: Few-Shot Preference Optimization of Synthetic Preference
+                 Data in {LLMs} Elicits Effective Personalization to Real Users},
+  author      = {Singh, Anikait and Hsu, Sheryl and Hsu, Kyle and Mitchell, Eric
+                 and Ermon, Stefano and Hashimoto, Tatsunori and Sharma, Archit
+                 and Finn, Chelsea},
+  year        = {2025},
+  eprint      = {2502.19312},
+  eprinttype  = {arXiv},
+  eprintclass = {cs.LG},
+  url         = {https://arxiv.org/abs/2502.19312},
 }
 
-@article{li2024prlhf,
-  title   = {Personalized Language Modeling from Personalized Human Feedback},
-  author  = {Li, Xinyu and Zhou, Ruiyang and Lipton, Zachary C. and Leqi, Liu},
-  journal = {arXiv preprint arXiv:2402.05133},
-  year    = {2024},
+@online{li2024prlhf,
+  title       = {Personalized Language Modeling from Personalized Human Feedback},
+  author      = {Li, Xinyu and Zhou, Ruiyang and Lipton, Zachary C. and Leqi, Liu},
+  year        = {2024},
+  eprint      = {2402.05133},
+  eprinttype  = {arXiv},
+  eprintclass = {cs.CL},
+  url         = {https://arxiv.org/abs/2402.05133},
 }
+
 
 % ---------- Serving infrastructure (Section 6.2) ----------------------------
 
 @inproceedings{sheng2024slora,
   title     = {{S-LoRA}: Serving Thousands of Concurrent {LoRA} Adapters},
   author    = {Sheng, Ying and Cao, Shiyi and Li, Dacheng and Hooper, Coleman and Demmel, Nicholas and Mo, Shuo and Tian, Xiaoxuan and Hayes, Tristan and Hou, Patrick and Stoica, Ion and Gonzalez, Joseph E. and Zhang, Hao},
-  booktitle = {Proceedings of Machine Learning and Systems},
+  booktitle = {Proceedings of Machine Learning and Systems (MLSys)},
   year      = {2024},
+  url       = {https://arxiv.org/abs/2311.03285},
 }
 
 
@@ -219,40 +301,32 @@
 
 % ---------- Base model and policy docs --------------------------------------
 
-@misc{llama3,
-  title  = {The Llama 3 Herd of Models},
-  author = {{Meta AI}},
-  year   = {2024},
-  note   = {Technical report},
+@techreport{llama3,
+  title       = {The Llama 3 Herd of Models},
+  author      = {{Llama Team, AI @ Meta}},
+  institution = {Meta},
+  year        = {2024},
+  eprint      = {2407.21783},
+  eprinttype  = {arXiv},
+  eprintclass = {cs.AI},
+  url         = {https://arxiv.org/abs/2407.21783},
 }
 
-@misc{novasbe-genai,
-  title  = {Nova SBE Guidelines Regarding the Usage of Generative AI},
-  author = {{Nova School of Business and Economics}},
-  year   = {2024},
+@online{novasbe-genai,
+  title        = {Nova {SBE} Guidelines Regarding the Usage of Generative {AI}},
+  author       = {{Nova School of Business and Economics}},
+  year         = {2024},
+  organization = {Nova School of Business and Economics},
+  note         = {Internal guideline document, distributed to students and faculty},
 }
 
-_______ Added by hand ________
+
+% ---------- LLM evaluation / arenas (Section 1.2, 6.1) ----------------------
 
 @inproceedings{chiang2024arena,
   title     = {Chatbot Arena: An Open Platform for Evaluating {LLM}s by Human Preference},
   author    = {Chiang, Wei-Lin and Zheng, Lianmin and Sheng, Ying and Angelopoulos, Anastasios Nikolas and Li, Tianle and Li, Dacheng and Zhu, Banghua and Zhang, Hao and Jordan, Michael I. and Gonzalez, Joseph E. and Stoica, Ion},
-  booktitle = {Proceedings of the 41st International Conference on Machine Learning ({ICML})},
+  booktitle = {Proceedings of the 41st International Conference on Machine Learning (ICML)},
   year      = {2024},
-}
-
-@inproceedings{sarwar2001itemcf,
-  title     = {Item-Based Collaborative Filtering Recommendation Algorithms},
-  author    = {Sarwar, Badrul and Karypis, George and Konstan, Joseph and Riedl, John},
-  booktitle = {Proceedings of the 10th International Conference on World Wide Web ({WWW})},
-  pages     = {285--295},
-  year      = {2001},
-}
-
-@inproceedings{rendle2009bpr,
-  title     = {{BPR}: Bayesian Personalized Ranking from Implicit Feedback},
-  author    = {Rendle, Steffen and Freudenthaler, Christoph and Gantner, Zeno and Schmidt-Thieme, Lars},
-  booktitle = {Proceedings of the 25th Conference on Uncertainty in Artificial Intelligence ({UAI})},
-  pages     = {452--461},
-  year      = {2009},
+  url       = {https://arxiv.org/abs/2403.04132},
 }

@@ -7,23 +7,11 @@
 %   latexmk -pdf main.tex          (recommended)
 %   or:  pdflatex main && biber main && pdflatex main && pdflatex main
 %
-% Structure:
-%   - main.tex            : preamble, doc structure (this file)
-%   - sections/*.tex      : one file per section, \input-ed below
-%   - references.bib      : BibLaTeX database
-%   - figures/            : drop PDF/PNG figures here
-%
-% Page budget (target 25 pp body, Nova SBE solo-DR):
-%   1 Introduction              ~2.5
-%   2 Background                ~3.0
-%   3 Methodology               ~4.0
-%   4 Experimental Design       ~2.0
-%   5 Results                   ~4.0
-%   6 Business Analysis         ~4.5
-%   7 Limitations & Future Work ~1.5
-%   8 Conclusion                ~1.0
-%   ---------------------------------
-%   Total                       ~22.5  (≈2.5 pp headroom for figures)
+% Note: this revision switches the bibliography to Chicago Author-Date
+% (biblatex-chicago, authordate style), as recommended by the Nova SBE
+% Library for work projects. The cover page is the official Nova SBE WP
+% template with the abstract and keywords on the same page, plus the
+% mandatory FCT / LISBOA2030 funding acknowledgement.
 % =============================================================================
 
 \documentclass[12pt,a4paper]{article}
@@ -65,16 +53,24 @@
   showstringspaces=false,
 }
 
-% ------ Bibliography (BibLaTeX + biber, APA-ish) ----------------------------
+% ------ Bibliography (Chicago Author-Date via biblatex-chicago) -------------
+% Style produces:
+%   In-text:      (Chiang et al. 2024)        -- no comma
+%   Bib entry:    Chiang, Wei-Lin, Lianmin Zheng, ... 2024. "Title." Source.
+% maxbibnames=7 forces "first 7 + et al." in the reference list, matching
+% Nova SBE's instruction for articles with more than 10 authors.
 \usepackage{csquotes}
 \usepackage[
+  authordate,            % Chicago Author-Date
   backend=biber,
-  style=authoryear,
-  natbib=true,
-  maxcitenames=2,
-  maxbibnames=99,
+  natbib=true,           % keep \citep / \citet from old source
+  maxcitenames=2,        % "Author1 and Author2" before "Author1 et al."
+  maxbibnames=7,         % cut to first 7 + et al. in bibliography
+  minbibnames=7,         % when cutting, keep exactly 7
+  giveninits=false,
+  uniquename=false,
   uniquelist=false,
-]{biblatex}
+]{biblatex-chicago}
 \addbibresource{references.bib}
 
 % ------ Cross-references (load hyperref LAST, cleveref AFTER) ---------------
@@ -88,31 +84,106 @@
 % =============================================================================
 \begin{document}
 
-% ------ Cover page (Nova SBE template -- replace this block with the official
-%        cover page from the WP SharePoint before submission) -----------------
+% =============================================================================
+% Official Nova SBE WP cover page (Template_WP_Cover_Page_Abstract_NovaSBE).
+% Order on the page:
+%   1. Programme statement
+%   2. Title (NOT all-caps -- the submission guidance explicitly says so)
+%   3. Student full name
+%   4. "Work project carried out under the supervision of:"
+%   5. (Advisor name)
+%   6. Date in mm-yyyy
+%   7. Abstract (100 words max -- current draft is 137 words, TRIM before submit)
+%   8. Keywords (minimum 4)
+%   9. FCT / LISBOA2030 funding line
+% =============================================================================
 \begin{titlepage}
-  \centering
-  \vspace*{2cm}
-  {\Large\bfseries Nova School of Business and Economics\par}
-  \vspace{0.5cm}
-  {\large Master's in Business Analytics\par}
-  \vfill
-  {\Huge\bfseries Taste: Cold Start Preference Optimisation for Personalised Large Language Models\par}
-  \vspace{0.8cm}
-  {\Large A Comparative Study of Alignment Methods\\with Business Implications\par}
-  \vfill
-  {\large \textit{Luís Rodrigues Lopes Ferreira}\par}
-  {\normalsize Student ID: \texttt{64396}\par}
-  \vspace{0.4cm}
-  {\large Advisor: \textit{Rodrigo Belo}\par}
-  \vfill
-  {\large \today\par}
+\thispagestyle{empty}
+\setlength{\parskip}{0.8em}
+
+% --- 1. Programme statement (top of page, left-aligned, regular text) -------
+\noindent A Work Project, presented as part of the requirements for the Award of a Master's degree in Business Analytics from the Nova School of Business and Economics.
+
+\vspace{2.5cm}
+
+% --- 2. Title (centred, Title Case -- NOT all caps) -------------------------
+\begin{center}
+{\LARGE\bfseries Taste: Cold Start Preference Optimisation for Personalised Large Language Models\par}
+\vspace{0.4cm}
+{\large A Comparative Study of Alignment Methods with Business Implications\par}
+\end{center}
+
+\vspace{2.5cm}
+
+% --- 3. Student full name (centred) -----------------------------------------
+\begin{center}
+{\large Lu\'is Rodrigues Lopes Ferreira\par}
+{\small Student ID: 64396\par}
+\end{center}
+
+\vspace{1.2cm}
+
+% --- 4-5. Supervision (exact wording from template) -------------------------
+\begin{center}
+Work project carried out under the supervision of:
+
+\vspace{0.3em}
+(Rodrigo Belo)
+\end{center}
+
+\vspace{1.2cm}
+
+% --- 6. Date in mm-yyyy format ----------------------------------------------
+\begin{center}
+05-2026
+\end{center}
+
+\vfill
+
+% --- 7. Abstract (100 words max) --------------------------------------------
+% NOTE: current text is 137 words. Trim to 100 before submission. A
+%       suggested 100-word version is included as a comment block below.
+\noindent\textbf{Abstract.}
+As foundation models start converging in performance, differentiation moves into
+how well the system fits the user in front of it, and in normal circumstances the
+system won't have any prior knowledge of the user's preferences. This thesis asks
+when a company should align a model by adjusting parameters and when it should
+just put the same data into the prompt. Four preference losses (DPO, IPO, SimPO,
+KTO) and two in-context learning variants are compared on GoodReads and Netflix
+with Llama-3-8B-Instruct. On fixed-completion scoring SimPO leads at $n = 100$;
+under free-form generation the ranking inverts and \texttt{icl\_chat} at $n = 10$
+names the held-out title 79\% of the time while SimPO is indistinguishable from
+the untrained base. Ranking products should start in ICL and switch past about
+fifty preferences, while generative products should stay in ICL.
+
+% -- Suggested 100-word version (drop in to replace the block above) --------
+% Foundation models are converging on capability, pushing differentiation toward
+% how well a system fits each user --- typically without prior preference knowledge.
+% This thesis asks when to align a model by training versus by prompting. Four
+% preference losses (DPO, IPO, SimPO, KTO) and two in-context-learning variants
+% are compared on GoodReads and Netflix with Llama-3-8B-Instruct. On
+% fixed-completion scoring SimPO leads at $n=100$; under free-form generation
+% the ranking inverts, with \texttt{icl\_chat} at $n=10$ naming the held-out
+% title 79\% of the time. Ranking products should start in ICL and switch past
+% roughly fifty preferences; generative products should stay in ICL.
+
+\vspace{0.5em}
+
+% --- 8. Keywords (minimum 4) ------------------------------------------------
+\noindent\textbf{Keywords:} large language models, preference optimisation, cold-start, recommendation, personalisation, DPO, IPO, SimPO, KTO, LoRA.
+
+\vspace{1.5em}
+
+% --- 9. FCT / LISBOA2030 funding line (mandatory) ---------------------------
+\noindent\small\itshape
+This work was funded by Funda\c{c}\~ao para a Ci\^encia e a Tecnologia (UID/00124/2025, UID/PRR/124/2025, Nova School of Business and Economics) and LISBOA2030 (DataLab2030 -- LISBOA2030-FEDER-01314200).
+
 \end{titlepage}
 
-% ------ Abstract ------------------------------------------------------------
-\input{sections/00_abstract}
-
-% ------ Front matter --------------------------------------------------------
+% =============================================================================
+% Front matter (NB: abstract is no longer a separate page -- it is on the
+% cover page above, per the official template).
+% =============================================================================
 \tableofcontents
 \listoffigures
 \listoftables

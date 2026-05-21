@@ -121,85 +121,53 @@ Two things qualify the §5.1 ranking once the per-user picture is in view. SimPO
 
 \FloatBarrier
 
-\subsection{$\beta$-Sensitivity}
-\label{sec:results:beta}
+\subsection{\texorpdfstring{$\beta$-Sensitivity}{beta-Sensitivity}}
+\label{sec:beta-sensitivity}
 
-The $\beta$-sensitivity sweep checks whether the \S5.1 ordering among the
-three reference-anchored losses is an artefact of $\beta = 0.1$. Across the
-three values tested on GoodReads at $n = 50$ (Table~\ref{tab:beta_acc}), no
-loss moves more than three percentage points and the SimPO lead over DPO,
-IPO and KTO is preserved at every $\beta$. IPO and DPO sit within one point
-of each other at all three values, and KTO is the only method whose ranking
-moves: it drops to fourth at $\beta = 0.1$ but matches DPO at $\beta = 0.05$
-and edges into second at $\beta = 0.5$. The headline ordering from \S5.1 is
-therefore stable in $\beta$; the smaller orderings among DPO, IPO and KTO
-are within the noise of a single-seed sweep and should not be read as
-evidence of a robust difference.
-
-\begin{table}[!ht]
-\centering
-\caption{$\beta$-sensitivity on GoodReads at $n = 50$, 15 users, seed 42.
-SimPO is reported at its native $\beta = 2.0$ across all rows since its
-$\beta$ scales a length-normalised gap and is not on the same axis as the
-reference-anchored losses.}
-\label{tab:beta_acc}
-\begin{tabular}{lcccc}
-\toprule
-$\beta$ & DPO & IPO & KTO & SimPO \\
-\midrule
-0.05    & .807 & .804 & .818 & .826 \\
-0.10    & .804 & .820 & .800 & \textbf{.860} \\
-0.50    & .806 & .793 & .824 & .811 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\FloatBarrier
+The $\beta$-sensitivity sweep checks whether the \S\ref{sec:primary-sweep}
+ordering among the three reference-anchored losses is an artefact of
+$\beta = 0.1$. Across the three values tested on GoodReads at $n = 50$
+(Table~\ref{tab:beta-sensitivity}), no method moves more than four percentage
+points and the four-method cluster stays well above the cold-start
+baselines, but the ordering inside the cluster is not stable. SimPO leads
+at $\beta = 0.05$ ($.826$) and $\beta = 0.10$ ($.860$), and KTO overtakes it
+at $\beta = 0.5$ ($.824$ vs $.811$). DPO and IPO sit within one to two
+points of each other at all three values. KTO is the most
+$\beta$-sensitive of the four: it is fourth at $\beta = 0.1$, second at
+$\beta = 0.05$, and first at $\beta = 0.5$. The headline finding from
+\S\ref{sec:primary-sweep} --- that the reference-anchored losses are
+clearly above the ICL baselines at $n = 50$ --- is therefore stable in
+$\beta$. The internal ordering of the four trained losses is not, and the
+\S\ref{sec:primary-sweep} ranking among them should be read as the result
+at the literature-default $\beta$ rather than as a robust ranking across
+temperatures. A multi-seed $\beta$ sweep would be required before reading
+more into the differences.
 
 \subsection{Prompt-Template Ablation}
-\label{sec:results:prompt}
+\label{sec:prompt-ablation}
 
 The prompt-template ablation re-runs the comparison under two alternative
-phrasings to check whether \S5.1 reflects a property of the methods or of
-the \texttt{simple} template. The cross-method ranking is preserved on both alternatives (Figure~\ref{fig:prompt_ablation} and Table~\ref{tab:prompt_acc}). SimPO is the best trained method under all three templates; \texttt{icl\_chat} is the best method overall
-under all three; \texttt{icl\_chat} beats \texttt{icl\_flat} on every
-template, which is the cleanest evidence in the thesis that the chat
-template itself is doing work beyond surface formatting. The one
-template-level effect worth flagging is that the \texttt{system} role
-depresses the four trained losses by three to seven points relative to
-\texttt{simple} while leaving the ICL baselines roughly untouched, which is
-consistent with the role-priming text competing with the LoRA signal for
-control of the model's behaviour. The ordering between methods, however,
-does not change.
-
-\begin{figure}[!ht]
-\centering
-\includegraphics[width=\textwidth]{images/updated/fig_prompt_ablation.pdf}
-\caption{Prompt-template ablation on GoodReads at $n = 50$. Bars show accuracy for each method under three prompt phrasings (\texttt{simple}, \texttt{detailed}, \texttt{system}). The cross-method ranking is preserved across all three templates and \texttt{icl\_chat} wins on every phrasing.}
-\label{fig:prompt_ablation}
-\end{figure}
-
-\begin{table}[!ht]
-\centering
-\caption{Prompt-template ablation on GoodReads at $n = 50$, seed 42. The
-\texttt{simple} column reports the \S5.1 numbers for context (22 users);
-\texttt{detailed} and \texttt{system} are the ablation runs (15 users).}
-\label{tab:prompt_acc}
-\begin{tabular}{lccc}
-\toprule
-\textbf{Method} & \texttt{simple} & \texttt{detailed} & \texttt{system} \\
-\midrule
-dpo                 & .828 & .811 & .769 \\
-ipo                 & .820 & .820 & .771 \\
-simpo               & .858 & .871 & .806 \\
-kto                 & .815 & .760 & .773 \\
-icl\_flat           & .812 & .809 & .820 \\
-icl\_chat           & \textbf{.883} & \textbf{.853} & \textbf{.888} \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\FloatBarrier
+phrasings to check whether \S\ref{sec:primary-sweep} reflects a property
+of the methods or of the \texttt{simple} template. The broad two-regime
+picture --- ICL and SimPO at the top, the other trained losses behind ---
+is preserved on both alternatives (Figure~\ref{fig:prompt-ablation} and
+Table~\ref{tab:prompt-ablation}). SimPO is the best trained method under
+all three templates; \texttt{icl\_chat} is the best method overall under
+\texttt{simple} ($.883$) and \texttt{system} ($.888$); and
+\texttt{icl\_chat} beats \texttt{icl\_flat} on every template, which is
+the cleanest evidence in the thesis that the chat template itself is
+doing work beyond surface formatting. Under \texttt{detailed} the top
+two swap: SimPO rises to $.871$ and edges past \texttt{icl\_chat}
+($.853$), the only template phrasing on which a trained method beats
+\texttt{icl\_chat} at $n = 50$. The one template-level effect worth
+flagging is that the \texttt{system} role depresses the four trained
+losses by roughly four to six points relative to \texttt{simple} while
+leaving the ICL baselines roughly untouched, which is consistent with the
+role-priming text competing with the LoRA signal for control of the
+model's behaviour. The ordering at the top therefore depends on the
+phrasing, but the qualitative picture from \S\ref{sec:primary-sweep} ---
+\texttt{icl\_chat} and SimPO clustered ahead of the rest --- survives
+every template.
 
 \subsection{Classical Recommender Comparison}
 \label{sec:results:classical}
