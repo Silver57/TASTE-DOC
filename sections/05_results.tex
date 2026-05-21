@@ -11,14 +11,14 @@
 
 SimPO is the only method that significantly beats the best ICL baseline at $n = 100$ on both datasets --- by 3.6 points on GoodReads ($p = 0.002$, paired Wilcoxon) and 5.9 points on Netflix ($p = 0.011$). Figure~\ref{fig:primary_curves} and Table~\ref{tab:primary_acc} show the full picture, and the same two-regime shape appears on both datasets. At $n \leq 10$ the trained methods sit at or below the frozen base model and the ICL baselines lead. The crossover lies between $n = 10$ and $n = 50$. From $n = 50$ onwards the trained methods overtake, with SimPO clear of the pack and IPO close behind.
 
-\begin{figure}[h]
+\begin{figure}[!ht]
 \centering
 \includegraphics[width=\textwidth]{images/updated/fig_primary_curves.pdf}
 \caption{Held-out pairwise accuracy by training size $n$ and method on GoodReads (left) and Netflix (right). Lines are means across users and seeds; shaded regions are $\pm 1$ standard error. The vertical band marks the crossover region between the cold-start and trained regimes; the dashed gray line is the frozen-base accuracy.}
 \label{fig:primary_curves}
 \end{figure}
 
-\begin{table}[h]
+\begin{table}[!ht]
 \centering
 \caption{Pairwise accuracy by method and training size. Bold marks the per-column best; $\dagger$ marks significant improvement over the best ICL baseline at the $0.05$ level (paired Wilcoxon at $n = 100$).}
 \label{tab:primary_acc}
@@ -47,15 +47,15 @@ icl\_chat            & .568 & .578 & .598 & .665 & .661 & .664 \\
 \end{tabular}
 \end{table}
 
-The per-user picture matches the means. SimPO wins on $14/22$ users on each dataset, against $7/22$ and $9/22$ for DPO, $10/22$ and $13/22$ for IPO, and $7/22$ and $14/22$ for KTO. The mean ranking and the per-user ranking agree, so the headline is not a few-user artefact.
-
 Two dataset-level differences are worth flagging. The frozen base sits at $0.550$ on GoodReads and at $0.459$ on Netflix, so book titles already carry signal to the pretrained model while movie titles do not. And the ICL baselines swap order across datasets: \texttt{icl\_chat} leads on GoodReads, \texttt{icl\_flat} leads on Netflix. The chat-template advantage is real on books but not on films.
+
+\FloatBarrier
 
 \subsection{Beyond the Cold-Start Cap}
 
 Pushing $n$ from $100$ to $150$ on GoodReads pulls the trained methods toward ceiling and leaves the ICL plateau where it was. Mean accuracy at $n = 150$ is $0.983$ for SimPO, $0.958$ for IPO, $0.932$ for DPO and $0.920$ for KTO, against $0.806$ for \texttt{icl\_flat}. The pairwise ordering established at $n = 100$ in §5.1 is preserved, but the gap between SimPO and the rest of the trained methods narrows as everything approaches the upper bound of the evaluation.
 
-\begin{table}[h]
+\begin{table}[!ht]
 \centering
 \caption{GoodReads pairwise accuracy at $n = 150$, averaged across users and seeds.}
 \label{tab:extended_acc}
@@ -74,25 +74,27 @@ icl\_flat           & .806 \\
 
 Two notes qualify the comparison with §5.1. The extended sweep was run on a different draw of 22 GoodReads users from the same eligibility pool, with ten users in common with the primary sweep, so the $n = 150$ column is best read as a separate measurement on the same population rather than as a continuation of any individual user's curve. And \texttt{icl\_chat} is not reported here: at $n = 150$ the prompt-side context already exceeds what the chat template can carry under the $8{,}192$-token cap, and the method's accuracy collapses to a level that reflects truncation rather than model behaviour. The \texttt{icl\_flat} variant remains within its working range at this size.
 
+\FloatBarrier
+
 \subsection{Per-User View}
 
 The mean curves in §5.1 hide whether the gain is spread across users or concentrated in a few. Figures~\ref{fig:per_user_gr} and \ref{fig:per_user_nf} show the full per-user grids: each panel is one user's learning curve under each method, on the same axes as Figure~\ref{fig:primary_curves}. Two facts emerge from the grid that are not visible in the means. No user is harmed by training at $n = 100$: on both datasets, the best trained method beats the frozen base model for every one of the twenty-two users. And no user is left stuck near chance: the worst best-method accuracy is $0.933$ on GoodReads and $0.600$ on Netflix.
 
-\begin{figure}[h]
+\begin{figure}[!ht]
 \centering
 \includegraphics[width=\textwidth]{images/updated/fig_per_user_goodreads.pdf}
 \caption{Per-user learning curves on GoodReads. Each panel is one user, sorted by best-method accuracy at $n = 100$; lines are method means across the two seeds.}
 \label{fig:per_user_gr}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[!ht]
 \centering
 \includegraphics[width=\textwidth]{images/updated/fig_per_user_netflix.pdf}
 \caption{Per-user learning curves on Netflix. Same layout as Figure~\ref{fig:per_user_gr}; the heterogeneity is more visible on this dataset.}
 \label{fig:per_user_nf}
 \end{figure}
 
-\begin{table}[h]
+\begin{table}[!ht]
 \centering
 \caption{Per-user picture at $n = 100$. Columns: spread of the best-method accuracy across the twenty-two users; users for whom no trained method exceeds the base; users where every method stays below $0.60$; outright per-user winner counts among the four trained methods and the two ICL baselines.}
 \label{tab:per_user}
@@ -117,6 +119,8 @@ Outright winners (out of $22$) &  & \\
 
 Two things qualify the §5.1 ranking once the per-user picture is in view. SimPO wins the mean comparison and the most users on both datasets, but it is not the per-user winner for $12/22$ GoodReads users and $15/22$ Netflix users --- for those, another trained method matches or exceeds it. The per-user grid also shows that the cold-start advantage of ICL is itself heterogeneous: at $n = 10$, the best ICL baseline beats the best trained method for $20/22$ GoodReads users but only $13/22$ Netflix users. The pattern in the means therefore holds at the user level, but with meaningful per-user variation that any deployment based on these results would need to plan for.
 
+\FloatBarrier
+
 \subsection{$\beta$-Sensitivity}
 \label{sec:results:beta}
 
@@ -132,7 +136,7 @@ therefore stable in $\beta$; the smaller orderings among DPO, IPO and KTO
 are within the noise of a single-seed sweep and should not be read as
 evidence of a robust difference.
 
-\begin{table}[h]
+\begin{table}[!ht]
 \centering
 \caption{$\beta$-sensitivity on GoodReads at $n = 50$, 15 users, seed 42.
 SimPO is reported at its native $\beta = 2.0$ across all rows since its
@@ -150,6 +154,8 @@ $\beta$ & DPO & IPO & KTO & SimPO \\
 \end{tabular}
 \end{table}
 
+\FloatBarrier
+
 \subsection{Prompt-Template Ablation}
 \label{sec:results:prompt}
 
@@ -166,14 +172,14 @@ consistent with the role-priming text competing with the LoRA signal for
 control of the model's behaviour. The ordering between methods, however,
 does not change.
 
-\begin{figure}[h]
+\begin{figure}[!ht]
 \centering
 \includegraphics[width=\textwidth]{images/updated/fig_prompt_ablation.pdf}
 \caption{Prompt-template ablation on GoodReads at $n = 50$. Bars show accuracy for each method under three prompt phrasings (\texttt{simple}, \texttt{detailed}, \texttt{system}). The cross-method ranking is preserved across all three templates and \texttt{icl\_chat} wins on every phrasing.}
 \label{fig:prompt_ablation}
 \end{figure}
 
-\begin{table}[h]
+\begin{table}[!ht]
 \centering
 \caption{Prompt-template ablation on GoodReads at $n = 50$, seed 42. The
 \texttt{simple} column reports the \S5.1 numbers for context (22 users);
@@ -192,6 +198,8 @@ icl\_chat           & \textbf{.883} & \textbf{.853} & \textbf{.888} \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+\FloatBarrier
 
 \subsection{Classical Recommender Comparison}
 \label{sec:results:classical}
@@ -213,7 +221,7 @@ it by twenty-five points at $n = 100$. The additional climb is the part of
 the signal that title semantics carry and that co-occurrence and matrix
 factorisation cannot represent.
 
-\begin{figure}[h]
+\begin{figure}[!ht]
 \centering
 \includegraphics[width=0.9\textwidth]{images/updated/fig_recsys_goodreads.pdf}
 \caption{GoodReads primary curves with the three classical baselines (POP,
@@ -222,7 +230,7 @@ $\pm 1$ standard error.}
 \label{fig:recsys_goodreads}
 \end{figure}
 
-\begin{table}[h]
+\begin{table}[!ht]
 \centering
 \caption{Classical baselines on GoodReads, averaged across users and seeds.
 The last two rows reproduce the best LLM method at each $n$ from \S5.1 for
@@ -242,19 +250,21 @@ simpo (LLM)         & .527 & .540 & .559 & .858 & .923 & \textbf{.959} \\
 \end{tabular}
 \end{table}
 
+\FloatBarrier
+
 \subsection{Free-Form Generation}
 \label{sec:results:judge}
 
-The methods in this thesis are evaluated by scoring fixed pairwise completions, but a deployed recommender writes its suggestions as natural-language sentences. This sub-study (\S4.5) asks whether the methods still rank the same way when the model must write a recommendation instead of score one. Figure~\ref{fig:flip} visualises the two metrics reported in Table~\ref{tab:judge_results}: the rate at which a Claude Sonnet judge prefers each method's sentence head-to-head, and the rate at which the title named in the sentence matches the book the user actually liked in the held-out set.
+The methods in this thesis are evaluated by scoring fixed pairwise completions, but a deployed recommender writes its suggestions as natural-language sentences. This sub-study (\cref{sec:exp:freeform}) asks whether the methods still rank the same way when the model must write a recommendation instead of score one. Figure~\ref{fig:flip} visualises the two metrics reported in Table~\ref{tab:judge_results}: the rate at which a Claude Sonnet judge prefers each method's sentence head-to-head, and the rate at which the title named in the sentence matches the book the user actually liked in the held-out set.
 
-\begin{figure}[h]
+\begin{figure}[!ht]
 \centering
 \includegraphics[width=0.9\textwidth]{images/updated/fig_flip.pdf}
 \caption{The same three conditions evaluated under two formats. Left: held-out pairwise accuracy (fixed-completion scoring). Right: judge win-rate on free-form one-sentence recommendations. The ranking inverts: SimPO leads on scoring but \texttt{icl\_chat} leads on generation.}
 \label{fig:flip}
 \end{figure}
 
-\begin{table}[h]
+\begin{table}[!ht]
 \centering
 \caption{Free-form generation sub-study on GoodReads, 10 users $\times$ 10 held-out pairs $= 100$ generations per condition. Judge win rate is across the three pairwise matchups; alignment is the rate at which the parsed choice equals the held-out liked title, with a one-sided binomial $p$ against chance.}
 \label{tab:judge_results}
@@ -270,3 +280,5 @@ base                          & .385          & .550          & $.184$ \\
 \end{table}
 
 The ranking flips. \texttt{icl\_chat}, which puts ten of the user's preferences directly into the prompt, writes the better recommendation on both measures and is the only condition whose alignment is clearly above chance. SimPO, trained on a hundred per-user preferences, writes recommendations that are statistically indistinguishable from the untrained base, and the two name the same book on $94$ of $100$ cells. The training changes the log-probability score the model assigns to a fixed completion but almost never changes the book the model would actually recommend, because SimPO learns to score a pre-written format it never has to produce. \texttt{icl\_chat} places the user's preferences in the prompt at generation time, where the model has to attend to them. The practical implication is that the offline accuracy used in §5.1 cannot be relied on alone: a method that wins on the benchmark may produce no improvement in the format the user actually sees.
+
+\FloatBarrier

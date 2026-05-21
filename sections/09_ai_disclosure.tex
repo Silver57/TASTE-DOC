@@ -9,3 +9,114 @@
 
 \section{AI Usage Disclosure}
 \label{app:ai}
+
+This appendix discloses the use of generative AI tools during the preparation
+of this thesis, following the citation policy and the \emph{Know, Inform,
+Assist} principles set out in the Nova SBE Generative AI guidelines
+\citep{novasbe-genai}. A clarification is in order before the itemised list.
+The thesis studies AI systems and produces AI artefacts: a frozen
+Llama-3-8B-Instruct base \citep{llama3}, per-user LoRA adapters
+\citep{hu2021lora} trained under DPO, IPO, SimPO and KTO, and the in-context
+learning baselines. Those artefacts are the object of study and are documented
+in \cref{sec:methodology,sec:design,sec:results}. The present appendix concerns
+something different: the AI assistants used \emph{around} that work, as
+research, coding and writing aids. Responsibility for every claim, figure and
+line of code in the thesis remains solely with the author.
+
+\subsection*{Tools used}
+
+The assistants consulted during the project were Claude Sonnet 4.6, Claude code and Overleaf Writing Assistant.
+Access took place between April 6 and May 20.
+No paid third-party plug-ins or browsing connectors were used to send any
+private or restricted data to these services; see the confidentiality note at
+the end of this appendix.
+
+\subsection*{AI used to retrieve information}
+
+The Nova SBE guidelines treat AI as a source of \emph{personal communication}
+when it is asked a question and returns an answer that is not independently
+recoverable \citep{novasbe-genai}. Used in this way, AI assistants helped
+clarify concepts whose primary sources are cited in the body of the thesis.
+The main topics on which the assistants were queried are: the mechanics and
+relative trade-offs of DPO, IPO, SimPO and KTO
+\citep{rafailov2023dpo,azar2024ipo,meng2024simpo,ethayarajh2024kto}, the
+geometry and hyper-parameter conventions of LoRA \citep{hu2021lora},
+the interpretation of the paired Wilcoxon signed-rank test, and the operational
+details of multi-adapter serving \citep{sheng2024slora}. In every case the
+authoritative source consulted was the cited publication; the assistant's
+output served as a comprehension aid and was discarded once the relevant
+passage in the paper was located. Where a factual claim in the thesis rests on
+one of these clarifications without an independent secondary source, that
+claim was re-verified against the original publication before inclusion. No
+in-text \emph{personal communication} citation appears in the body of the
+thesis because no claim depends on AI output as a primary source.
+
+\subsection*{AI used to generate content}
+
+Per the Nova SBE guidelines, when AI is used to generate ideas or to develop a
+plan, the tool, the method of use and the date of access must be acknowledged
+\citep{novasbe-genai}. The following uses fall into this category.
+
+\paragraph{Code and infrastructure.}
+Portions of the training and evaluation pipeline were drafted with AI
+assistance and then reviewed, executed and modified by the author. This
+includes the per-user LoRA training loop, the YAML sweep configurations
+referenced in \cref{sec:design}, the KTO row-expansion utility described in
+\cref{sec:pair-gen}, the scoring code that groups KTO outputs back into pairs
+by \texttt{pair\_id}, and the plotting code used to produce the figures in
+\cref{sec:results}. Every code artefact was executed end-to-end on the actual
+data.
+
+\paragraph{LaTeX scaffolding.}
+The section skeletons, the page-budget comment blocks at the top of each
+section, and an initial draft of the \texttt{biblatex} entries in
+\texttt{references.bib} were produced with AI assistance. Every bibliographic
+entry was then checked against the published source; entries that could not be
+verified are flagged in the \texttt{note} field of \texttt{references.bib} and
+were either confirmed or removed before submission.
+
+\paragraph{Ideation.} AI assistants were used as a sounding board for the framing of the cold-start problem in \cref{sec:intro}, the structure of the sweep grid in \cref{sec:exp}, and the business-case narrative in \cref{sec:business}. None of the analytical conclusions in those sections was adopted from an assistant's output verbatim: each was either re-derived from the experimental results or supported by a cited source.
+
+\subsection*{AI used in editing assistance}
+
+The Nova SBE guidelines exempt editing assistance from formal acknowledgement
+\citep{novasbe-genai}. For transparency, the author notes that AI tools were
+used for grammar, clarity and LaTeX-syntax suggestions on prose that the
+author had already drafted.
+
+\subsection*{Hallucination and verification}
+
+Generative AI systems can produce confident but inaccurate output, including
+fabricated citations \citep{novasbe-genai}. Three concrete safeguards were
+applied throughout the project. First, every reference cited in the body of
+the thesis was confirmed against the actual publication (DOI or arXiv ID);
+items that could not be confirmed are tagged with a \texttt{Verify} note in
+\texttt{references.bib} and were resolved before submission. Second, every
+piece of AI-assisted code was executed on the real data and its output
+compared against expected behaviour described in \cref{sec:methodology}, not
+accepted on the strength of the assistant's explanation. Third, numerical
+results, statistical tests and figure values reported in \cref{sec:results}
+were re-derived from the raw sweep outputs by the author and are
+reproducible from the artefacts kept alongside the thesis.
+
+\subsection*{Confidentiality, copyright and data handling}
+
+Both datasets used in this work are publicly released benchmarks: the Netflix
+Prize dataset and the GoodReads-10k dataset, as described in
+\cref{sec:data}. No personal data, no confidential material from any third
+party, no NDA-covered content and no proprietary code base was uploaded to any
+external AI service. Where snippets of the author's own code or LaTeX were
+shared with AI assistants for editing assistance, the content involved no
+material under embargo and no identifying information about the dataset
+subjects.
+
+\subsection*{Accountability}
+
+In line with the Nova SBE guidelines, the responsibility to discuss, defend
+and justify the merit and sources of the content of this thesis rests solely
+with the author \citep{novasbe-genai}. Every methodological choice, every
+analytical step and every conclusion reported in the body of the document can
+be re-derived from the materials cited and reproduced from the artefacts kept
+alongside the submission. The use of AI tools described above accelerated
+drafting and verification; it did not substitute for the underlying decisions,
+which remain the author's own.
