@@ -118,7 +118,7 @@ To anchor the absolute level of the LLM curves we add three non-LLM baselines fr
 Every baseline is evaluated under the same protocol as \S4.1: same twenty-two eval users, same training sizes, same thirty held-out pairs per user, and a background interaction matrix built from all ratings except those of the eval users. The classical orchestrator seeds its per-user split via SHA-256 rather than Python's process-randomised \texttt{hash()}, so the held-out subset for a given cell does not match the LLM run's cell-for-cell. Means across users and seeds remain directly comparable and are what \S5 reports; per-user paired tests across the LLM and classical families would not be valid and are not reported.
 
 
-\subsection{Free-Form Generation Sub-Study}
+\subsection{Free-Form Generation}
 \label{sec:exp:freeform}
 
 The five sweeps above all score fixed completions under the model's log-probability distribution. A small sub-study tests whether those shifts transfer to free-form generation, the format a deployed system would actually use.

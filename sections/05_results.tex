@@ -8,6 +8,7 @@
 \label{sec:results}
 
 \subsection{Primary Sweep}
+\label{sec:primary-sweep}     
 
 SimPO is the only method that significantly beats the best ICL baseline at $n = 100$ on both datasets --- by 3.6 points on GoodReads ($p = 0.002$, paired Wilcoxon) and 5.9 points on Netflix ($p = 0.011$). Figure~\ref{fig:primary_curves} and Table~\ref{tab:primary_acc} show the full picture, and the same two-regime shape appears on both datasets. At $n \leq 10$ the trained methods sit at or below the frozen base model and the ICL baselines lead. The crossover lies between $n = 10$ and $n = 50$. From $n = 50$ onwards the trained methods overtake, with SimPO clear of the pack and IPO close behind.
 
@@ -126,22 +127,22 @@ Two things qualify the §5.1 ranking once the per-user picture is in view. SimPO
 
 The $\beta$-sensitivity sweep checks whether the \S\ref{sec:primary-sweep}
 ordering among the three reference-anchored losses is an artefact of
-$\beta = 0.1$. Across the three values tested on GoodReads at $n = 50$
-(Table~\ref{tab:beta-sensitivity}), no method moves more than four percentage
-points and the four-method cluster stays well above the cold-start
-baselines, but the ordering inside the cluster is not stable. SimPO leads
-at $\beta = 0.05$ ($.826$) and $\beta = 0.10$ ($.860$), and KTO overtakes it
-at $\beta = 0.5$ ($.824$ vs $.811$). DPO and IPO sit within one to two
-points of each other at all three values. KTO is the most
-$\beta$-sensitive of the four: it is fourth at $\beta = 0.1$, second at
-$\beta = 0.05$, and first at $\beta = 0.5$. The headline finding from
+$\beta = 0.1$. Across the three values tested on GoodReads at $n = 50$,
+no method moves more than four percentage points and the four-method
+cluster stays well above the cold-start baselines, but the ordering
+inside the cluster is not stable. SimPO leads at $\beta = 0.05$ ($.826$)
+and $\beta = 0.10$ ($.860$), and KTO overtakes it at $\beta = 0.5$
+($.824$ vs $.811$). DPO and IPO sit within one to two points of each
+other at all three values. KTO is the most $\beta$-sensitive of the
+four: it is fourth at $\beta = 0.1$, second at $\beta = 0.05$, and
+first at $\beta = 0.5$. The headline finding from
 \S\ref{sec:primary-sweep} --- that the reference-anchored losses are
 clearly above the ICL baselines at $n = 50$ --- is therefore stable in
-$\beta$. The internal ordering of the four trained losses is not, and the
-\S\ref{sec:primary-sweep} ranking among them should be read as the result
-at the literature-default $\beta$ rather than as a robust ranking across
-temperatures. A multi-seed $\beta$ sweep would be required before reading
-more into the differences.
+$\beta$. The internal ordering of the four trained losses is not, and
+the \S\ref{sec:primary-sweep} ranking among them should be read as the
+result at the literature-default $\beta$ rather than as a robust ranking
+across temperatures. A multi-seed $\beta$ sweep would be required before
+reading more into the differences.
 
 \subsection{Prompt-Template Ablation}
 \label{sec:prompt-ablation}
@@ -150,8 +151,7 @@ The prompt-template ablation re-runs the comparison under two alternative
 phrasings to check whether \S\ref{sec:primary-sweep} reflects a property
 of the methods or of the \texttt{simple} template. The broad two-regime
 picture --- ICL and SimPO at the top, the other trained losses behind ---
-is preserved on both alternatives (Figure~\ref{fig:prompt-ablation} and
-Table~\ref{tab:prompt-ablation}). SimPO is the best trained method under
+is preserved on both alternatives. SimPO is the best trained method under
 all three templates; \texttt{icl\_chat} is the best method overall under
 \texttt{simple} ($.883$) and \texttt{system} ($.888$); and
 \texttt{icl\_chat} beats \texttt{icl\_flat} on every template, which is
@@ -162,8 +162,8 @@ two swap: SimPO rises to $.871$ and edges past \texttt{icl\_chat}
 \texttt{icl\_chat} at $n = 50$. The one template-level effect worth
 flagging is that the \texttt{system} role depresses the four trained
 losses by roughly four to six points relative to \texttt{simple} while
-leaving the ICL baselines roughly untouched, which is consistent with the
-role-priming text competing with the LoRA signal for control of the
+leaving the ICL baselines roughly untouched, which is consistent with
+the role-priming text competing with the LoRA signal for control of the
 model's behaviour. The ordering at the top therefore depends on the
 phrasing, but the qualitative picture from \S\ref{sec:primary-sweep} ---
 \texttt{icl\_chat} and SimPO clustered ahead of the rest --- survives
